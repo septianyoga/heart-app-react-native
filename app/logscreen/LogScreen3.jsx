@@ -10,18 +10,9 @@ export default function LogScreen2() {
         <View style={styles.container}>
             <StatusBar barStyle="light-content" />
             <SafeAreaView style={styles.safeArea}>
-                <View style={styles.skipContainer}>
-                    <TouchableOpacity
-                        style={styles.skipButton}
-                        onPress={() => router.push('/login')}
-                    >
-                        <Text style={styles.skipText}>Skip</Text>
-                    </TouchableOpacity>
-                </View>
-
                 <View style={styles.illustrationContainer}>
                     <Image
-                        source={require('../../assets/images/ilustrasi-2.png')}
+                        source={require('../../assets/images/ilustrasi-3.png')}
                         style={styles.mainImage}
                         resizeMode="contain"
                     />
@@ -37,7 +28,7 @@ export default function LogScreen2() {
                 <View style={styles.navigationButtons}>
                     <TouchableOpacity
                         style={styles.backButton}
-                        onPress={() => router.push('/logscreen/LogScreen1')}
+                        onPress={() => router.push('/logscreen/LogScreen2')}
                     >
                         <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
                         <Text style={styles.buttonText}>Back</Text>
@@ -45,7 +36,7 @@ export default function LogScreen2() {
 
                     <TouchableOpacity
                         style={styles.nextButton}
-                        onPress={() => router.push('/logscreen/LogScreen3')}
+                        onPress={() => router.push('/login')}
                     >
                         <Text style={styles.buttonText}>Next</Text>
                         <Ionicons name="arrow-forward" size={24} color="#FFFFFF" />
