@@ -11,7 +11,7 @@ export default function LogScreen2() {
 
             <TouchableOpacity
                 style={styles.button}
-                onPress={() => router.push('/login/Login')}
+                onPress={() => router.push('/login')}
             >
                 <Text style={{ color: 'white' }}>Next</Text>
             </TouchableOpacity>

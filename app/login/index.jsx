@@ -1,21 +1,62 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native'
-import React from 'react'
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Button } from 'react-native'
+import React, { useState } from 'react'
 import { useRouter } from 'expo-router';
+import { login } from '../../services/authService';
+import { ALERT_TYPE, Dialog, AlertNotificationRoot, Toast } from 'react-native-alert-notification';
 
-export default function LoginScreen() {
+export default function Login() {
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+
     const router = useRouter();
+
+    const handleLogin = async () => {
+        try {
+            const response = await login({ email, password });
+            if (response.status) {
+                Toast.show({
+                    type: ALERT_TYPE.SUCCESS,
+                    title: 'Success Login',
+                    textBody: 'Selamat datang, ' + response.data.user.name + '👋',
+                })
+                return router.push('/(tabs)')
+            }
+            return Dialog.show({
+                type: ALERT_TYPE.WARNING,
+                title: 'Gagal',
+                textBody: response.message,
+                button: 'close',
+            })
+        } catch (error) {
+            console.log('error login: ', error.message);
+        }
+    }
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity style={styles.skipButton} onPress={() => router.push('/somewhere')}>
-                <Text style={styles.skipButtonText}>Skip</Text>
+            <Text style={styles.title}>Login</Text>
+            <TextInput
+                style={styles.input}
+                placeholder="Email"
+                value={email}
+                onChangeText={(text) => setEmail(text)}
+            />
+            <TextInput
+                style={styles.input}
+                placeholder="Password"
+                secureTextEntry={true}
+                value={password}
+                onChangeText={(text) => setPassword(text)}
+            />
+            <TouchableOpacity style={styles.button} onPress={handleLogin}>
+                <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
-            <Image source={require('../../assets/images/loading-screen.png')} style={styles.image} />
-            <Text style={styles.title}>Hart Health Check</Text>
-            <Text style={styles.subtitle}>Monitor your heart health and get personalized tips.</Text>
-            <TouchableOpacity style={styles.nextButton} onPress={() => router.push('/login/LogScreen2')}>
-                <Text style={styles.nextButtonText}>Next</Text>
-            </TouchableOpacity>
+            <View style={styles.linkContainer}>
+                <Text style={styles.linkText}>Belum punya akun? </Text>
+                <TouchableOpacity onPress={() => router.push('/register')}>
+                    <Text style={styles.linkText}>Daftar disini</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     )
 }
@@ -25,48 +66,35 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#54c42e',
-        padding: 15
-    },
-    skipButton: {
-        position: 'absolute',
-        top: 10,
-        right: 10,
-        backgroundColor: 'gray',
-        padding: 10,
-        borderRadius: 5
-    },
-    skipButtonText: {
-        color: 'white',
-        fontSize: 14
-    },
-    image: {
-        width: 350,
-        height: 380,
-        resizeMode: 'contain',
-        paddingBottom: 0
+        padding: 20
     },
     title: {
         fontSize: 24,
-        fontWeight: 'bold',
+        marginBottom: 20
+    },
+    input: {
+        width: '100%',
+        height: 40,
+        borderColor: 'gray',
+        borderWidth: 1,
         marginBottom: 10,
-        color: 'white'
+        paddingHorizontal: 10
     },
-    subtitle: {
-        fontSize: 16,
-        marginBottom: 20,
-        color: 'white',
-        textAlign: 'justify',
-        textAlignVertical: 'center'
-    },
-    nextButton: {
+    button: {
         backgroundColor: '#007AFF',
         padding: 10,
-        borderRadius: 5
+        borderRadius: 5,
+        marginTop: 20
     },
-    nextButtonText: {
+    buttonText: {
         color: 'white',
+        fontSize: 16
+    },
+    linkContainer: {
+        flexDirection: 'row',
+        marginTop: 20
+    },
+    linkText: {
         fontSize: 16
     }
 })
-

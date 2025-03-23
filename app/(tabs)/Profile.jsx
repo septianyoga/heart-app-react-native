@@ -9,10 +9,10 @@ export default function Profile() {
     return (
         <View style={styles.container}>
             <Text>Profile</Text>
-            <TouchableOpacity style={styles.button} onPress={() => router.push('/login/Login')}>
+            <TouchableOpacity style={styles.button} onPress={() => router.push('/login')}>
                 <Text style={styles.buttonText}>Logout</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() => router.push('/login')}>
+            <TouchableOpacity style={styles.button} onPress={() => router.push('/logscreen/LogScreen1')}>
                 <Text style={styles.buttonText}>Ke Loading Screen 1</Text>
             </TouchableOpacity>
         </View>

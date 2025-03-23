@@ -32,6 +32,16 @@ export const login = async (userData) => {
     }
 };
 
+export const register = async (userData) => {
+    try {
+        const response = await api.post('/signup', userData);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || 'Register Gagal';
+    }
+};
+
+
 // Fungsi untuk mengupdate user
 // export const updateUser = async (id, userData) => {
 //     try {

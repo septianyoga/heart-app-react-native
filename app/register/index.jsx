@@ -1,20 +1,56 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useRouter } from 'expo-router';
-import { RadioButton } from 'react-native-paper';
+import RadioGroup from 'react-native-radio-buttons-group';
+import { register } from '../../services/authService';
+import { ALERT_TYPE, Dialog } from 'react-native-alert-notification';
 
 export default function Register() {
     const [nik, setNik] = useState('')
-    const [namaLengkap, setNamaLengkap] = useState('')
-    const [noTelepon, setNoTelepon] = useState('')
+    const [name, setName] = useState('')
+    const [no_hp, setNoTelepon] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [konfirmasiPassword, setKonfirmasiPassword] = useState('')
-    const [bpjs, setBpjs] = useState('Tidak')
+    const [bpjs, setBpjs] = useState('')
+    const [selectedId, setSelectedId] = useState('');
     const router = useRouter();
 
-    const handleRegister = () => {
-        console.log('Register dengan data: ', { nik, namaLengkap, noTelepon, email, password, konfirmasiPassword, bpjs })
+    const radioButtons = useMemo(() => ([
+        {
+            id: '1', // acts as primary key, should be unique and non-empty string
+            label: 'Ya',
+            value: 'Ya'
+        },
+        {
+            id: '2',
+            label: 'Tidak',
+            value: 'Tidak'
+        }
+    ]), []);
+
+    const handleRegister = async () => {
+        try {
+            const response = await register({ nik, name, no_hp, email, password, konfirmasiPassword, bpjs });
+            if (response.status) {
+                Dialog.show({
+                    type: ALERT_TYPE.SUCCESS,
+                    title: 'Success',
+                    textBody: 'Register Berhasil',
+                    button: 'close',
+                })
+                return router.push('/login')
+            }
+            return Dialog.show({
+                type: ALERT_TYPE.WARNING,
+                title: 'Gagal Register',
+                textBody: response.message,
+                button: 'close',
+            })
+        } catch (error) {
+            console.log('error login: ', error.message);
+        }
+
     }
 
     return (
@@ -25,24 +61,27 @@ export default function Register() {
                 placeholder="NIK"
                 value={nik}
                 onChangeText={setNik}
+                keyboardType="numeric"
             />
             <TextInput
                 style={styles.input}
                 placeholder="Nama Lengkap"
-                value={namaLengkap}
-                onChangeText={setNamaLengkap}
+                value={name}
+                onChangeText={setName}
             />
             <TextInput
                 style={styles.input}
                 placeholder="No Telepon"
-                value={noTelepon}
+                value={no_hp}
                 onChangeText={setNoTelepon}
+                keyboardType="numeric"
             />
             <TextInput
                 style={styles.input}
                 placeholder="Email"
                 value={email}
                 onChangeText={setEmail}
+                keyboardType="email-address"
             />
             <TextInput
                 style={styles.input}
@@ -60,23 +99,25 @@ export default function Register() {
             />
             <View style={styles.bpjsContainer}>
                 <Text style={styles.bpjsText}>Apakah ada BPJS?</Text>
-                <RadioButton
-                    value="Ya"
-                    status={bpjs === 'Ya' ? 'checked' : 'unchecked'}
-                    onPress={() => setBpjs('Ya')}
-                />
-                <RadioButton
-                    value="Tidak"
-                    status={bpjs === 'Tidak' ? 'checked' : 'unchecked'}
-                    onPress={() => setBpjs('Tidak')}
+                <RadioGroup
+                    radioButtons={radioButtons}
+                    onPress={setSelectedId}
+                    selectedId={selectedId}
+                    layout='row'
                 />
             </View>
+            {selectedId === '1' && <TextInput
+                style={styles.input}
+                placeholder="No BPJS"
+                value={bpjs}
+                onChangeText={setBpjs}
+            />}
             <TouchableOpacity style={styles.button} onPress={handleRegister}>
                 <Text style={styles.buttonText}>Daftar</Text>
             </TouchableOpacity>
             <View style={styles.linkContainer}>
                 <Text style={styles.linkText}>Sudah punya akun? </Text>
-                <TouchableOpacity onPress={() => router.push('/login/Login')}>
+                <TouchableOpacity onPress={() => router.push('/login')}>
                     <Text style={styles.linkText}>Login disini</Text>
                 </TouchableOpacity>
             </View>
@@ -123,7 +164,8 @@ const styles = StyleSheet.create({
     bpjsContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 10
+        marginTop: 10,
+        marginBottom: 20
     },
     bpjsText: {
         fontSize: 16
