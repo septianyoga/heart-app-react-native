@@ -1,8 +1,7 @@
 import axios from 'axios';
-import env from '../config/env';
 
 // Konfigurasi Axios
-const API_URL = env.API_URL;
+const API_URL = "https://api-backend.heart-apps.com/api";
 
 // Buat instance Axios dengan konfigurasi default
 const api = axios.create({
