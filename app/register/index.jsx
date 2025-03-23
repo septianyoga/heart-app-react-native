@@ -1,9 +1,11 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Dimensions } from 'react-native'
 import React, { useState, useMemo } from 'react'
 import { useRouter } from 'expo-router';
 import RadioGroup from 'react-native-radio-buttons-group';
 import { register } from '../../services/authService';
 import { ALERT_TYPE, Dialog } from 'react-native-alert-notification';
+
+const { width, height } = Dimensions.get('window');
 
 export default function Register() {
     const [nik, setNik] = useState('')
@@ -55,7 +57,10 @@ export default function Register() {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Register</Text>
+            <View style={styles.imageContainer}>
+                <Image source={require('../../assets/images//logo/1.png')} style={styles.image} />
+            </View>
+            <Text style={styles.title}>Daftar Akun</Text>
             <TextInput
                 style={styles.input}
                 placeholder="NIK"
@@ -116,10 +121,17 @@ export default function Register() {
                 <Text style={styles.buttonText}>Daftar</Text>
             </TouchableOpacity>
             <View style={styles.linkContainer}>
-                <Text style={styles.linkText}>Sudah punya akun? </Text>
+                <Text style={styles.textLink}>Sudah punya akun? </Text>
                 <TouchableOpacity onPress={() => router.push('/login')}>
                     <Text style={styles.linkText}>Login disini</Text>
                 </TouchableOpacity>
+            </View>
+            <View style={styles.containerLogo}>
+                <Image source={require('../../assets/images/logo/tutwuri.png')} style={styles.logo} />
+                <Image source={require('../../assets/images/logo/kedaireka.png')} style={styles.logo} />
+                <Image source={require('../../assets/images/logo/vokasi.png')} style={styles.logo} />
+                <Image source={require('../../assets/images/logo/1.png')} style={styles.logo} />
+                <Image source={require('../../assets/images/logo/polsub.png')} style={styles.logo} />
             </View>
         </View>
     )
@@ -128,38 +140,49 @@ export default function Register() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20
+        justifyContent: 'space-between',
+        alignItems: 'start',
+        padding: width * 0.05, 
     },
     title: {
         fontSize: 24,
-        marginBottom: 20
+        fontWeight: 600,
+        textAlign: 'center',
+        marginBottom: 20,
+        marginTop: -50
     },
     input: {
         width: '100%',
         height: 40,
         borderColor: 'gray',
-        borderWidth: 1,
+        borderWidth: 1.5,
+        borderRadius: 5,
         marginBottom: 10,
+        marginTop: 2,
         paddingHorizontal: 10
     },
     button: {
-        backgroundColor: '#007AFF',
+        backgroundColor: '#54c42e',
         padding: 10,
         borderRadius: 5,
         marginTop: 20
     },
     buttonText: {
         color: 'white',
-        fontSize: 16
+        fontSize: 16,
+        fontWeight: 'bold',
+        textAlign: 'center'
     },
     linkContainer: {
         flexDirection: 'row',
         marginTop: 20
     },
     linkText: {
-        fontSize: 16
+        fontSize: 16,
+        color: '#007AFF'
+    },
+    textLink: {
+        fontSize: 16,
     },
     bpjsContainer: {
         flexDirection: 'row',
@@ -169,6 +192,31 @@ const styles = StyleSheet.create({
     },
     bpjsText: {
         fontSize: 16
+    },
+    imageContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 20
+    },
+    image: {
+        width: 120,
+        height: 180,
+        resizeMode: 'contain',
+        paddingBottom: 0,
+        marginTop: -50
+    },
+    containerLogo: {
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+        marginTop: height * 0.04,
+        marginBottom: 20
+    },
+    logo: {
+        width: 65,
+        height: 65,
+        resizeMode: 'contain',
+        marginBottom: 20
     }
 })
 
