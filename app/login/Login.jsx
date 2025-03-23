@@ -1,6 +1,8 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Button } from 'react-native'
 import React, { useState } from 'react'
 import { useRouter } from 'expo-router';
+import { login } from '../../services/authService';
+import { ALERT_TYPE, Dialog, AlertNotificationRoot, Toast } from 'react-native-alert-notification';
 
 export default function Login() {
     const [email, setEmail] = useState('')
@@ -8,10 +10,26 @@ export default function Login() {
 
     const router = useRouter();
 
-    const handleLogin = () => {
-        //TODO: handle login logic here
-        console.log('Login dengan email: ', email, ' dan password: ', password)
-        router.push('/(tabs)')
+    const handleLogin = async () => {
+        try {
+            const response = await login({ email, password });
+            if (response.status) {
+                Toast.show({
+                    type: ALERT_TYPE.SUCCESS,
+                    title: 'Success',
+                    textBody: 'Selamat datang, ' + response.data.name,
+                })
+                return router.push('/(tabs)')
+            }
+            return Dialog.show({
+                type: ALERT_TYPE.WARNING,
+                title: 'Gagal',
+                textBody: 'Email atau password salah',
+                button: 'close',
+            })
+        } catch (error) {
+            console.log('error login: ', error.message);
+        }
     }
 
     return (

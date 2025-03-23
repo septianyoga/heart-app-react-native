@@ -6,15 +6,14 @@ import { useRouter } from 'expo-router'
 export default function Profile() {
     const router = useRouter();
 
-    const handlePress = () => {
-        router.push('/login/Login')
-    }
-
     return (
         <View style={styles.container}>
             <Text>Profile</Text>
-            <TouchableOpacity style={styles.button} onPress={handlePress}>
+            <TouchableOpacity style={styles.button} onPress={() => router.push('/login/Login')}>
                 <Text style={styles.buttonText}>Logout</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => router.push('/login')}>
+                <Text style={styles.buttonText}>Ke Loading Screen 1</Text>
             </TouchableOpacity>
         </View>
     )
