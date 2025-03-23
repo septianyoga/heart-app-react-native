@@ -2,9 +2,15 @@ import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, SafeAreaView, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { storeData, getData, removeData } from '../../services/storageService';
 
 export default function LogScreen2() {
     const router = useRouter();
+
+    const finishOnboarding = async () => {
+        await storeData("hasSeenOnboarding", "true");
+        router.replace("/(tabs)"); // Arahkan ke halaman utama (tabs)
+    };
 
     return (
         <View style={styles.container}>
@@ -36,7 +42,7 @@ export default function LogScreen2() {
 
                     <TouchableOpacity
                         style={styles.nextButton}
-                        onPress={() => router.push('/login')}
+                        onPress={() => finishOnboarding()}
                     >
                         <Text style={styles.buttonText}>Next</Text>
                         <Ionicons name="arrow-forward" size={24} color="#FFFFFF" />

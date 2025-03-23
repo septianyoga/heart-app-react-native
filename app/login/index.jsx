@@ -1,9 +1,10 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Button, Image, Dimensions } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'expo-router';
 import { login } from '../../services/authService';
 import { ALERT_TYPE, Dialog, AlertNotificationRoot, Toast } from 'react-native-alert-notification';
 import { Checkbox } from 'react-native-paper';
+import { storeData, getData, removeData } from '../../services/storageService';
 
 const { width, height } = Dimensions.get('window');
 export default function Login() {
@@ -22,6 +23,9 @@ export default function Login() {
                     title: 'Success Login',
                     textBody: 'Selamat datang, ' + response.data.user.name + '👋',
                 })
+                await storeData('token', response.data.token);
+                await storeData('user', response.data.user);
+                await storeData('isLogin', true);
                 return router.push('/(tabs)')
             }
             return Dialog.show({
@@ -34,6 +38,16 @@ export default function Login() {
             console.log('error login: ', error.message);
         }
     }
+
+    useEffect(() => {
+        const checkLogin = async () => {
+            const isLogin = await getData('isLogin');
+            if (isLogin) {
+                return router.push('/(tabs)')
+            }
+        }
+        checkLogin();
+    }, [])
 
     return (
         <View style={styles.container}>

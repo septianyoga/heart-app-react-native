@@ -1,10 +1,22 @@
 import { View, Text } from 'react-native'
-import React from 'react'
-import { Tabs } from 'expo-router'
+import React, { useEffect } from 'react'
+import { Tabs, useRouter } from 'expo-router'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { storeData, getData, removeData } from '../../services/storageService';
 
 export default function TabLayout() {
+    const router = useRouter();
+
+    useEffect(() => {
+        const checkLogin = async () => {
+            const isLogin = await getData('isLogin');
+            if (!isLogin) {
+                return router.push('/login');
+            }
+        }
+        checkLogin();
+    })
     return (
         <Tabs screenOptions={{ headerShown: false }}>
             <Tabs.Screen name='index'

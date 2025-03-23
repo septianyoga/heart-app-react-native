@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, SafeAreaView, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { ALERT_TYPE, Dialog, AlertNotificationRoot, Toast } from 'react-native-alert-notification';
+import { storeData, getData, removeData } from '../../services/storageService';
 // import * as ImagePicker from 'expo-image-picker';
 
 export default function ProfileScreen() {
@@ -9,11 +11,11 @@ export default function ProfileScreen() {
 
     const [profileImage, setProfileImage] = useState(null);
     const [userInfo, setUserInfo] = useState({
-        nik: '2382382389283',
-        namaLengkap: 'User',
-        noTelepon: '081234567890',
-        email: 'user@gmail.com',
-        nomorBPJS: 'Nomor BPJS in here'
+        nik: '',
+        namaLengkap: '',
+        noTelepon: '',
+        email: '',
+        nomorBPJS: ''
     });
 
     const pickImage = async () => {
@@ -33,6 +35,33 @@ export default function ProfileScreen() {
         console.log('Saving user profile', userInfo);
         // Implement save functionality
     };
+
+    const handleLogout = async () => {
+        Toast.show({
+            type: ALERT_TYPE.SUCCESS,
+            title: 'Success Logout',
+            textBody: 'Selamat tinggal, ' + user.name + '👋',
+        })
+        await removeData('token');
+        await removeData('user');
+        await removeData('isLogin');
+        router.push('/login');
+    };
+
+    const setUser = async () => {
+        const user = await getData('user');
+        setUserInfo({
+            nik: user.nik,
+            namaLengkap: user.name,
+            noTelepon: user.no_hp,
+            email: user.email,
+            nomorBPJS: user.no_bpjs
+        });
+    }
+
+    useEffect(() => {
+        setUser();
+    })
 
     return (
         <SafeAreaView style={styles.container}>
@@ -67,11 +96,11 @@ export default function ProfileScreen() {
                     </View>
 
                     <View style={styles.userInfo}>
-                        <Text style={styles.userName}>User</Text>
+                        <Text style={styles.userName}>{userInfo.namaLengkap}</Text>
                         <Text style={styles.userEmail}>{userInfo.email}</Text>
                         <Text style={styles.userPhone}>{userInfo.noTelepon}</Text>
 
-                        <TouchableOpacity style={styles.logoutButton} onPress={() => router.push('/login')}>
+                        <TouchableOpacity style={styles.logoutButton} onPress={() => handleLogout()}>
                             <Text style={styles.logoutText}>Logout</Text>
                             <Ionicons name="power" size={20} color="white" style={styles.logoutIcon} />
                         </TouchableOpacity>
