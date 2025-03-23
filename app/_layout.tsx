@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 import { StatusBar } from "react-native";
 import { AlertNotificationRoot } from "react-native-alert-notification";
 
@@ -10,6 +10,7 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="login/index" />
       </Stack>
+      <Redirect href="/logscreen/LogScreen1" />
     </AlertNotificationRoot>
   )
 }
