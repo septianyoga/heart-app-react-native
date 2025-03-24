@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 
 export default function History() {
     const [searchText, setSearchText] = useState('');
+    const [isAntrian, setIsAntrian] = useState(true);
     const router = useRouter();
 
     const dataAntrianHangus = [
@@ -15,7 +16,7 @@ export default function History() {
         { id: '2', nama: 'Antrian A002' },
         { id: '2', nama: 'Antrian A002' },
         { id: '2', nama: 'Antrian A002' },
-        { id: '2', nama: 'Antrian A002' },
+        { id: '2', nama: 'Antrian A003' },
     ]
     const itemsAntrian = [
         { id: '1', nama: 'Antrian A001' },
@@ -28,63 +29,100 @@ export default function History() {
             </View>
             <View style={styles.navContainer}>
                 <TouchableOpacity
-                    style={[styles.navButton, { borderRightWidth: 1, borderRightColor: '#ccc', backgroundColor: '#54c42e', opacity: 0.5 }]}
-                    onPress={() => router.push('/(tabs)/index')}
+                    style={[
+                        styles.navButton,
+                        isAntrian && {
+                            borderRightWidth: 1,
+                            borderRightColor: '#ccc',
+                            backgroundColor: '#54c42e',
+                            opacity: 0.5
+                        }
+                    ]}
+                    onPress={() => setIsAntrian(true)}
                 >
                     <Text style={[styles.navTitle, { color: '#000' }]}>History Antrian</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={styles.navButton}
-                    onPress={() => router.push('/(tabs)/antrian')}
+                    style={[
+                        styles.navButton,
+                        !isAntrian && {
+                            borderRightWidth: 1,
+                            borderRightColor: '#ccc',
+                            backgroundColor: '#54c42e',
+                            opacity: 0.5
+                        }
+                    ]}
+                    onPress={() => setIsAntrian(false)}
                 >
-                    <Text style={styles.navTitle}>History Test</Text>
+                    <Text style={[styles.navTitle, { color: '#000' }]}>History Test</Text>
                 </TouchableOpacity>
             </View>
-            <View style={styles.searchContainer}>
-                <FontAwesome name="search" size={20} color="gray" style={styles.searchIcon} />
-                <TextInput
-                    style={styles.searchInput}
-                    placeholder="Cari Antrian"
-                    value={searchText}
-                    onChangeText={setSearchText}
-                />
-            </View>
-            <View style={styles.antrianThis}>
-                {itemsAntrian.map(item => (
-                    <View key={item.id} style={[styles.card, { width: '100%', height: 100 }]}>
-                        <Text style={[styles.cardTitle, { marginBottom: -5 }]}>{item.nama}</Text>
-                        <View style={[styles.cardButton]}>
-                            <Text style={[styles.cardButtonText]}>Antrian Kamu</Text>
+            {isAntrian && (
+                <>
+                    <View style={styles.containerContent}>
+                        <View style={styles.searchContainer}>
+                            <FontAwesome name="search" size={20} color="gray" style={styles.searchIcon} />
+                            <TextInput
+                                style={styles.searchInput}
+                                placeholder="Cari Antrian"
+                                value={searchText}
+                                onChangeText={setSearchText}
+                            />
                         </View>
                     </View>
-                ))}
-            </View>
-            <View style={styles.antrianHangus}>
-                <FlatList
-                    data={dataAntrianHangus}
-                    keyExtractor={(item, index) => item.id + index}
-                    numColumns={2}
-                    showsHorizontalScrollIndicator={false}
-                    showsVerticalScrollIndicator={false}
-                    renderItem={({ item, index }) => (
-                        <View style={[styles.card, { backgroundColor: 'red' }]}>
-                            <Text style={styles.cardTitle}>{item.nama}</Text>
-                            <View style={[styles.cardButton]}>
-                                <Text style={styles.cardButtonText}>Antrian Hangus</Text>
+                    <View style={styles.antrianThis}>
+                        {itemsAntrian.map(item => (
+                            <View key={item.id} style={[styles.card, { width: '100%', height: 100 }]}>
+                                <Text style={[styles.cardTitle, { marginBottom: -5 }]}>{item.nama}</Text>
+                                <View style={[styles.cardButton]}>
+                                    <Text style={[styles.cardButtonText]}>Antrian Kamu</Text>
+                                </View>
                             </View>
+                        ))}
+                    </View>
+                    <View style={styles.antrianHangus}>
+                        <FlatList
+                            data={dataAntrianHangus}
+                            keyExtractor={(item, index) => item.id + index}
+                            numColumns={2}
+                            showsHorizontalScrollIndicator={false}
+                            showsVerticalScrollIndicator={false}
+                            renderItem={({ item, index }) => (
+                                <View style={[styles.card, { backgroundColor: 'red' }]}>
+                                    <Text style={styles.cardTitle}>{item.nama}</Text>
+                                    <View style={[styles.cardButton]}>
+                                        <Text style={styles.cardButtonText}>Antrian Hangus</Text>
+                                    </View>
+                                </View>
+                            )}
+                            contentContainerStyle={{
+                                marginBottom: 100, // Memberikan ruang ekstra di bawah
+                                justifyContent: 'center',
+                                alignItems: 'start',
+                            }}
+                            columnWrapperStyle={{
+                                justifyContent: 'space-between',
+                            }}
+                            scrollEnabled={true}
+                        />
+                    </View>
+                </>
+            )}
+            {!isAntrian && (
+                <>
+                    <View style={styles.containerContent}>
+                        <View style={styles.searchContainer}>
+                            <FontAwesome name="search" size={20} color="gray" style={styles.searchIcon} />
+                            <TextInput
+                                style={styles.searchInput}
+                                placeholder="Cari Antrian"
+                                value={searchText}
+                                onChangeText={setSearchText}
+                            />
                         </View>
-                    )}
-                    contentContainerStyle={{
-                        marginBottom: 100, // Memberikan ruang ekstra di bawah
-                        justifyContent: 'center',
-                        alignItems: 'start',
-                    }}
-                    columnWrapperStyle={{
-                        justifyContent: 'space-between',
-                    }}
-                    scrollEnabled={true}
-                />
-            </View>
+                    </View>
+                </>
+            )}
 
         </View>
     )
@@ -135,6 +173,9 @@ const styles = StyleSheet.create({
         fontSize: 14,
         textAlign: 'center',
         fontWeight: 'bold',
+    },
+    containerContent: {
+        padding: 10,
     },
     searchContainer: {
         flexDirection: 'row',

@@ -5,17 +5,20 @@ import { login } from '../../services/authService';
 import { ALERT_TYPE, Dialog, AlertNotificationRoot, Toast } from 'react-native-alert-notification';
 import { Checkbox } from 'react-native-paper';
 import { storeData, getData, removeData } from '../../services/storageService';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const { width, height } = Dimensions.get('window');
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const router = useRouter();
 
     const handleLogin = async () => {
         try {
+            setLoading(true);
             const response = await login({ email, password });
             if (response.status) {
                 Toast.show({
@@ -28,6 +31,7 @@ export default function Login() {
                 await storeData('isLogin', true);
                 return router.push('/(tabs)')
             }
+            setLoading(false);
             return Dialog.show({
                 type: ALERT_TYPE.WARNING,
                 title: 'Gagal',
@@ -35,6 +39,7 @@ export default function Login() {
                 button: 'close',
             })
         } catch (error) {
+            setLoading(false);
             console.log('error login: ', error.message);
         }
     }
@@ -54,6 +59,11 @@ export default function Login() {
             <View style={styles.imageContainer}>
                 <Image source={require('../../assets/images//logo/1.png')} style={styles.image} />
             </View>
+            <Spinner
+                visible={loading}
+                textContent={'Loading...'}
+                textStyle={styles.spinnerTextStyle}
+            />
             <Text style={styles.title}>Selamat Datang</Text>
             <TextInput
                 style={styles.input}
@@ -172,5 +182,8 @@ const styles = StyleSheet.create({
         height: 75,
         resizeMode: 'contain',
         marginBottom: 20
-    }
+    },
+    spinnerTextStyle: {
+        color: '#FFF',
+    },
 })

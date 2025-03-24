@@ -1,16 +1,27 @@
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Image } from 'react-native'
 import { Ionicons } from '@expo/vector-icons';
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'expo-router';
 import { Video } from 'expo-av';
+import { getVideo } from '../../services/videoService';
+
 
 export default function TestHealth() {
     const router = useRouter();
-    const videoData = [
-        {
-            file: require('../../assets/video/video.mp4'),
-        },
-    ]
+    const [videoData, setVideoData] = useState();
+
+    const fetchVideo = async () => {
+        try {
+            const response = await getVideo();
+            setVideoData(response.data);
+        } catch (error) {
+            console.error('Error fetching video data:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchVideo();
+    }, []);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -27,7 +38,7 @@ export default function TestHealth() {
                     Dengan melanjutkan berarti anda dapat menyetujui syarat dan ketentuan.
                 </Text>
                 <Video
-                    source={videoData[0].file}
+                    source={{ uri: videoData?.video }}
                     style={styles.video}
                     shouldPlay
                     useNativeControls={false}

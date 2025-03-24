@@ -40,8 +40,9 @@ export default function ProfileScreen() {
         Toast.show({
             type: ALERT_TYPE.SUCCESS,
             title: 'Success Logout',
-            textBody: 'Selamat tinggal, ' + user.name + '👋',
+            textBody: 'Selamat tinggal, ' + userInfo.namaLengkap + '👋',
         })
+        console.log('Logout success');
         await removeData('token');
         await removeData('user');
         await removeData('isLogin');
@@ -67,13 +68,7 @@ export default function ProfileScreen() {
         <SafeAreaView style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity
-                    style={styles.backButton}
-                    onPress={() => router.back()}
-                >
-                    <Ionicons name="arrow-back" size={24} color="white" />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Health App</Text>
+                <Text style={styles.headerTitle}>Heart App</Text>
             </View>
 
             <ScrollView style={styles.scrollView}>
