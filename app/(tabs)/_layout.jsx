@@ -49,6 +49,7 @@ export default function TabLayout() {
                     tabBarIcon: (color) => <MaterialCommunityIcons name="account" size={24} color={color} />
                 }}
             />
+            
         </Tabs>
     )
 }

@@ -21,6 +21,9 @@ export default function Antrian() {
         { id: '6', nama: 'Antrian A006' },
         { id: '6', nama: 'Antrian A006' },
         { id: '6', nama: 'Antrian A006' },
+        { id: '6', nama: 'Antrian A006' },
+        { id: '6', nama: 'Antrian A006' },
+        { id: '6', nama: 'Antrian A006' },
     ];
 
     const handlePress = (item) => {
@@ -28,21 +31,21 @@ export default function Antrian() {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>Heart App</Text>
             </View>
             <View style={styles.navContainer}>
                 <TouchableOpacity
-                    style={[styles.navButton, { borderRightWidth: 1, borderRightColor: '#ccc' }]}
-                    onPress={() => router.push('/(tabs)/home')}
+                    style={[styles.navButton, { borderRightWidth: 1, borderRightColor: '#ccc', backgroundColor: '#54c42e', opacity: 0.5  }]}
+                    onPress={() => router.push('(tabs)/Antrian')}
                 >
-                    <Text style={styles.navTitle}>Lihat Antrian</Text>
+                    <Text style={[styles.navTitle, { color: '#000' }]}>Lihat Antrian</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={styles.navButton}
-                    onPress={() => router.push('/(tabs)/antrian')}
+                    onPress={() => router.push('/page/Jadwal')}
                 >
                     <Text style={styles.navTitle}>Lihat Jadwal</Text>
                 </TouchableOpacity>
@@ -61,29 +64,32 @@ export default function Antrian() {
                         onChangeText={setSearchText}
                     />
                 </View>
-
-               <FlatList
-                    data={dataAntrian}
-                    keyExtractor={(item, index) => item.id + index}
-                    numColumns={2}
-                    showsHorizontalScrollIndicator={false}  // Disable horizontal scrollbar
-                    renderItem={({ item }) => (
-                        <View style={styles.card}>
-                            <Text style={styles.cardTitle}>{item.nama}</Text>
-                            <TouchableOpacity style={styles.cardButton} onPress={() => handlePress(item)}>
-                                <Text style={styles.cardButtonText}>Ambil Antrian</Text>
-                            </TouchableOpacity>
-                        </View>
-                    )}
-                    contentContainerStyle={{
-                        marginBottom: 20, 
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                />
-
             </View>
-        </SafeAreaView>
+            <FlatList
+                data={dataAntrian}
+                keyExtractor={(item, index) => item.id + index}
+                numColumns={2}
+                showsHorizontalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
+                renderItem={({ item }) => (
+                    <View style={styles.card}>
+                        <Text style={styles.cardTitle}>{item.nama}</Text>
+                        <TouchableOpacity style={styles.cardButton} onPress={() => handlePress(item)}>
+                            <Text style={styles.cardButtonText}>Ambil Antrian</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
+                contentContainerStyle={{
+                    marginBottom: 100, // Memberikan ruang ekstra di bawah
+                    justifyContent: 'center',
+                    alignItems: 'start',
+                }}
+                columnWrapperStyle={{
+                    justifyContent: 'space-between',
+                }}
+                scrollEnabled={true} // Mengaktifkan scrolling
+            />
+        </View>
     )
 }
 
@@ -136,7 +142,6 @@ const styles = StyleSheet.create({
     },
     containerContent: {
         padding: 10,
-        marginBottom: 50,
         flexGrow: 1,
         overflow: 'hidden',
     },
@@ -153,7 +158,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         paddingHorizontal: 20,
         paddingVertical: 5,
-        marginBottom: 20,
+        marginBottom: 10,
     },
     searchIcon: {
         marginRight: 10,
