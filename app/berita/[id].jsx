@@ -1,11 +1,11 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, SafeAreaView, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 export default function DetailBerita() {
     const router = useRouter();
-
+    const params = useLocalSearchParams();
     return (
         <SafeAreaView style={styles.container}>
             {/* Header */}
@@ -16,29 +16,26 @@ export default function DetailBerita() {
                 >
                     <Ionicons name="arrow-back" size={24} color="white" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Health App</Text>
+                <Text style={styles.headerTitle}>Heart App</Text>
             </View>
 
             <ScrollView style={styles.scrollView}>
                 <View style={styles.containerImage}>
                     <Image
-                        source={require('../../assets/images/jantung-1.jpg')}
+                        source={params.image}
                         style={styles.image}
                     />
                 </View>
 
                 <View style={styles.containerContent}>
                     <Text style={styles.title}>
-                        Jantung Kronis: Mengenal Gejala dan Pencegahan
+                        {params.name}
                     </Text>
                     <Text style={styles.date}>
-                        24 November 2025
+                        {params.created_at}
                     </Text>
                     <Text style={styles.subTitle}>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla facilisi. Nulla facilisi. Nulla facilisi. Nulla facilisi. Nulla facilisi.
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla facilisi. Nulla facilisi. Nulla facilisi. Nulla facilisi. Nulla facilisi.
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla facilisi. Nulla facilisi. Nulla facilisi. Nulla facilisi. Nulla facilisi.
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla facilisi. Nulla facilisi. Nulla facilisi. Nulla facilisi. Nulla facilisi.
+                        {params.desc}
                     </Text>
                 </View>
             </ScrollView>
@@ -53,7 +50,8 @@ const styles = StyleSheet.create({
     },
     header: {
         backgroundColor: '#54c42e',
-        padding: 15,
+        padding: 5,
+        // paddingTop: 20,
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',

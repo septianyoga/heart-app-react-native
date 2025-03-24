@@ -1,7 +1,6 @@
 import { Redirect, Stack } from "expo-router";
 import { StatusBar } from "react-native";
 import { AlertNotificationRoot } from "react-native-alert-notification";
-
 export default function RootLayout() {
   return (
     <AlertNotificationRoot>

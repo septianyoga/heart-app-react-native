@@ -135,7 +135,8 @@ export default function HomeScreen() {
                                 });
 
                                 return (
-                                    <TouchableOpacity onPress={() => router.push('/register')}>
+                                    // <TouchableOpacity onPress={() => router.push({ pathname: "/berita/" + item.id, params: item })}>
+                                    <TouchableOpacity onPress={() => router.push({ pathname: `/berita/${item.id}`, params: item })}>
                                         <View style={style.educationItem}>
                                             <View style={style.educationItemImage}>
                                                 <Image source={require('../../assets/images/jantung.jpeg')} style={style.educationImage} />
