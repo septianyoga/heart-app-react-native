@@ -4,43 +4,86 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { ALERT_TYPE, Dialog, AlertNotificationRoot, Toast } from 'react-native-alert-notification';
 import { storeData, getData, removeData } from '../../services/storageService';
-// import * as ImagePicker from 'expo-image-picker';
+import * as ImagePicker from 'expo-image-picker';
+import { updateProfile } from '../../services/profileService';
+import { set } from 'date-fns';
 
 export default function ProfileScreen() {
     const router = useRouter();
-
+    const [currentUser, setCurrentUser] = useState({});
     const [profileImage, setProfileImage] = useState(null);
     const [userInfo, setUserInfo] = useState({
+        id: '',
         nik: '',
-        namaLengkap: '',
-        noTelepon: '',
+        name: '',
+        no_hp: '',
         email: '',
-        nomorBPJS: ''
+        no_bpjs: '',
+        foto: ''
     });
 
     const pickImage = async () => {
-        // let result = await ImagePicker.launchImageLibraryAsync({
-        //   mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        //   allowsEditing: true,
-        //   aspect: [1, 1],
-        //   quality: 1,
-        // });
+        // Cek dan minta izin akses galeri
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+            Alert.alert('Izin diperlukan', 'Berikan izin untuk mengakses galeri.');
+            return;
+        }
 
-        // if (!result.canceled) {
-        //   setProfileImage(result.assets[0].uri);
-        // }
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            const selectedImage = result.assets[0]; // Ambil objek gambar
+
+            setProfileImage(selectedImage.uri);
+        }
     };
 
-    const handleSave = () => {
-        console.log('Saving user profile', userInfo);
-        // Implement save functionality
+
+    const handleSave = async () => {
+        try {
+            const response = await updateProfile(userInfo.id, userInfo, profileImage);
+            console.log('response : ', response);
+            if (response.status) {
+                await removeData('user');
+                await storeData('user', response.data);
+                await setUser();
+                return Toast.show({
+                    type: ALERT_TYPE.SUCCESS,
+                    title: 'Success',
+                    textBody: 'Update Berhasil',
+                    button: 'close',
+                })
+            }
+            return Dialog.show({
+                type: ALERT_TYPE.WARNING,
+                title: 'Gagal Update',
+                textBody: response.message,
+                button: 'close',
+            })
+        } catch (error) {
+            console.log('error gan: ', error);
+            if (error.response) {
+                return Dialog.show({
+                    type: ALERT_TYPE.WARNING,
+                    title: 'Gagal Update',
+                    textBody: error.response.data.message,
+                    button: 'close',
+                })
+            }
+        }
     };
 
     const handleLogout = async () => {
         Toast.show({
             type: ALERT_TYPE.SUCCESS,
             title: 'Success Logout',
-            textBody: 'Selamat tinggal, ' + userInfo.namaLengkap + '👋',
+            textBody: 'Selamat tinggal, ' + userInfo.name + '👋',
         })
         console.log('Logout success');
         await removeData('token');
@@ -51,18 +94,23 @@ export default function ProfileScreen() {
 
     const setUser = async () => {
         const user = await getData('user');
-        setUserInfo({
-            nik: user.nik,
-            namaLengkap: user.name,
-            noTelepon: user.no_hp,
-            email: user.email,
-            nomorBPJS: user.no_bpjs
-        });
-    }
+        setCurrentUser(user);
+        if (user) {
+            setUserInfo({
+                id: user.id || '',
+                nik: user.nik || '',
+                name: user.name || '',
+                no_hp: user.no_hp || '',
+                email: user.email || '',
+                no_bpjs: user.no_bpjs || '',
+                foto: user.foto || ''
+            });
+        }
 
+    };
     useEffect(() => {
         setUser();
-    })
+    }, [profileImage]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -75,12 +123,15 @@ export default function ProfileScreen() {
                 {/* Profile Section */}
                 <View style={styles.profileSection}>
                     <View style={styles.profileImageContainer}>
-                        {profileImage ? (
-                            <Image source={{ uri: profileImage }} style={styles.profileImage} />
-                        ) : (
+                        {!currentUser.foto && !profileImage && (
                             <View style={styles.placeholderImage}>
                                 <Text style={styles.placeholderText}>105 × 105</Text>
                             </View>
+                        )}
+                        {profileImage ? (
+                            <Image source={{ uri: profileImage }} style={styles.profileImage} />
+                        ) : (
+                            <Image source={{ uri: currentUser.foto }} style={styles.profileImage} />
                         )}
                         <TouchableOpacity
                             style={styles.uploadButton}
@@ -91,9 +142,9 @@ export default function ProfileScreen() {
                     </View>
 
                     <View style={styles.userInfo}>
-                        <Text style={styles.userName}>{userInfo.namaLengkap}</Text>
-                        <Text style={styles.userEmail}>{userInfo.email}</Text>
-                        <Text style={styles.userPhone}>{userInfo.noTelepon}</Text>
+                        <Text style={styles.userName}>{currentUser.name}</Text>
+                        <Text style={styles.userEmail}>{currentUser.email}</Text>
+                        <Text style={styles.userPhone}>{currentUser.no_hp}</Text>
 
                         <TouchableOpacity style={styles.logoutButton} onPress={() => handleLogout()}>
                             <Text style={styles.logoutText}>Logout</Text>
@@ -108,22 +159,22 @@ export default function ProfileScreen() {
                     <TextInput
                         style={styles.input}
                         value={userInfo.nik}
-                        onChangeText={(text) => setUserInfo({ ...userInfo, nik: text })}
+                        onChangeText={(text) => setUserInfo(prevState => ({ ...prevState, nik: text }))}
                         keyboardType="numeric"
                     />
 
                     <Text style={styles.inputLabel}>Nama Lengkap</Text>
                     <TextInput
                         style={styles.input}
-                        value={userInfo.namaLengkap}
-                        onChangeText={(text) => setUserInfo({ ...userInfo, namaLengkap: text })}
+                        value={userInfo.name}
+                        onChangeText={(text) => setUserInfo(prevState => ({ ...prevState, name: text }))}
                     />
 
                     <Text style={styles.inputLabel}>No Telepon</Text>
                     <TextInput
                         style={styles.input}
-                        value={userInfo.noTelepon}
-                        onChangeText={(text) => setUserInfo({ ...userInfo, noTelepon: text })}
+                        value={userInfo.no_hp}
+                        onChangeText={(text) => setUserInfo(prevState => ({ ...prevState, no_hp: text }))}
                         keyboardType="phone-pad"
                     />
 
@@ -131,15 +182,15 @@ export default function ProfileScreen() {
                     <TextInput
                         style={styles.input}
                         value={userInfo.email}
-                        onChangeText={(text) => setUserInfo({ ...userInfo, email: text })}
+                        onChangeText={(text) => setUserInfo(prevState => ({ ...prevState, email: text }))}
                         keyboardType="email-address"
                     />
 
                     <Text style={styles.inputLabel}>Nomor BPJS</Text>
                     <TextInput
                         style={styles.input}
-                        value={userInfo.nomorBPJS}
-                        onChangeText={(text) => setUserInfo({ ...userInfo, nomorBPJS: text })}
+                        value={userInfo.no_bpjs}
+                        onChangeText={(text) => setUserInfo(prevState => ({ ...prevState, no_bpjs: text }))}
                     />
 
                     <TouchableOpacity

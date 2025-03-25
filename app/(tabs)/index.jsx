@@ -1,12 +1,14 @@
 import { View, Text, StyleSheet, Image, ScrollView, FlatList, TouchableOpacity } from 'react-native';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useRouter } from 'expo-router';
 import { formatDistanceToNow } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { getBerita } from '../../services/beritaService';
 
 export default function HomeScreen() {
     const [activeIndex, setActiveIndex] = useState(0);
+    const [berita, setBerita] = useState([]);
     const flatListRef = useRef(null); // Reference to FlatList
     const router = useRouter();
 
@@ -31,27 +33,23 @@ export default function HomeScreen() {
         // Add more data as needed
     ];
 
-    const eductationData = [
-        {
-            id: '1',
-            name: 'Jantung Kronis',
-            desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-            image: require('../../assets/images/jantung.jpeg'),
-            created_at: '2025-03-22 17:54:25',
-        },
-        {
-            id: '2',
-            name: 'Jantung Kronis 2',
-            desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-            image: require('../../assets/images/jantung.jpeg'),
-            created_at: '2025-03-22 17:54:25',
-        },
-    ];
-
     const handlePaginationClick = (index) => {
         setActiveIndex(index);
         flatListRef.current.scrollToIndex({ index }); // Scroll to the clicked item
     };
+
+    const fetchBerita = async () => {
+        try {
+            const response = await getBerita();
+            setBerita(response.data);
+        } catch (error) {
+            console.error('Error fetching berita:', error);
+        }
+    }
+
+    useEffect(() => {
+        fetchBerita();
+    }, []);
 
     return (
         <FlatList
@@ -118,7 +116,7 @@ export default function HomeScreen() {
                     <View style={style.educationContainer}>
                         <View style={style.navEducation}>
                             <Text style={{ fontSize: 16, fontWeight: 600 }}>Education</Text>
-                            <TouchableOpacity onPress={() => router.push('/register')}>
+                            <TouchableOpacity>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <Text style={style.linkText}>See All</Text>
                                     <FontAwesome name="angle-right" size={16} color="black" style={{ marginLeft: 5 }} />
@@ -126,7 +124,7 @@ export default function HomeScreen() {
                             </TouchableOpacity>
                         </View>
                         <FlatList
-                            data={eductationData}
+                            data={berita}
                             renderItem={({ item }) => {
                                 // Format the created_at field
                                 const formattedTime = formatDistanceToNow(new Date(item.created_at), {
@@ -139,13 +137,13 @@ export default function HomeScreen() {
                                     <TouchableOpacity onPress={() => router.push({ pathname: `/berita/${item.id}`, params: item })}>
                                         <View style={style.educationItem}>
                                             <View style={style.educationItemImage}>
-                                                <Image source={require('../../assets/images/jantung.jpeg')} style={style.educationImage} />
+                                                <Image source={{ uri: item.foto }} style={style.educationImage} />
                                             </View>
                                             <View>
-                                                <Text style={{ fontSize: 14, fontWeight: 600 }}>{item.name}</Text>
+                                                <Text numberOfLines={2} ellipsizeMode="tail" style={{ fontSize: 14, fontWeight: 600 }}>{item.judul}</Text>
                                                 <View style={{ width: 200 }}>
                                                     <Text style={{ fontSize: 12, marginVertical: 5 }} numberOfLines={1}>
-                                                        {item.desc}
+                                                        {item.isi}
                                                     </Text>
                                                 </View>
                                                 <Text style={{ fontSize: 12 }}>{formattedTime}</Text>
@@ -243,6 +241,7 @@ const style = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginVertical: 15,
+        width: 200,
     },
     educationItemImage: {
         width: 100,

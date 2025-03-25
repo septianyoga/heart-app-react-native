@@ -13,7 +13,7 @@ export default function Register() {
     const [no_hp, setNoTelepon] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const [konfirmasiPassword, setKonfirmasiPassword] = useState('')
+    const [password_confirmation, setKonfirmasiPassword] = useState('')
     const [bpjs, setBpjs] = useState('')
     const [selectedId, setSelectedId] = useState('');
     const router = useRouter();
@@ -33,7 +33,7 @@ export default function Register() {
 
     const handleRegister = async () => {
         try {
-            const response = await register({ nik, name, no_hp, email, password, konfirmasiPassword, bpjs });
+            const response = await register({ nik, name, no_hp, email, password, password_confirmation, bpjs });
             if (response.status) {
                 Dialog.show({
                     type: ALERT_TYPE.SUCCESS,
@@ -99,7 +99,7 @@ export default function Register() {
                 style={styles.input}
                 placeholder="Konfirmasi Password"
                 secureTextEntry
-                value={konfirmasiPassword}
+                value={password_confirmation}
                 onChangeText={setKonfirmasiPassword}
             />
             <View style={styles.bpjsContainer}>
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'space-between',
         alignItems: 'start',
-        padding: width * 0.05, 
+        padding: width * 0.05,
     },
     title: {
         fontSize: 24,
