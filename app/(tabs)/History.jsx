@@ -18,6 +18,14 @@ export default function History() {
         { id: '2', nama: 'Antrian A002' },
         { id: '2', nama: 'Antrian A003' },
     ]
+    const dataTest = [
+        { id: '1', value: '10', status: 'green', date: '24 November 2025', time: '20:00' },
+        { id: '2', value: '30', status: 'red', date: '24 November 2025', time: '20:00' },
+        { id: '3', value: '14', status: 'green', date: '24 November 2025', time: '20:00' },
+        { id: '4', value: '20', status: 'red', date: '24 November 2025', time: '20:00' },
+        { id: '5', value: '14', status: 'green', date: '24 November 2025', time: '20:00' },
+        { id: '6', value: '20', status: 'red', date: '24 November 2025', time: '20:00' },
+    ]
     const itemsAntrian = [
         { id: '1', nama: 'Antrian A001' },
     ]
@@ -121,6 +129,32 @@ export default function History() {
                             />
                         </View>
                     </View>
+                    <View style={styles.contentContainer}>
+                        <FlatList
+                            data={dataTest}
+                            showsHorizontalScrollIndicator={false}
+                            showsVerticalScrollIndicator={false}
+                            renderItem={({ item }) => (
+                                <View style={styles.cardTest}>
+                                    <View style={styles.cardContentTest}>
+                                        <Text style={[styles.cardTitleTest, item.status === 'green' ? { color: '#54c42e' } : { color: 'red' }]}>
+                                            {item.value}
+                                            <Text style={styles.cardTitle2Test}>pt</Text>
+                                        </Text>
+                                        <View style={styles.cardInfoTest}>
+                                            <View style={[styles.badge, item.status === 'green' ? { backgroundColor: '#54c42e' } : { backgroundColor: 'red' }]}></View>
+                                            <Text style={[styles.cardTextTest, item.status === 'green' ? { color: '#54c42e' } : { color: 'red' }]}>{item.status === 'green' ? 'Low Risk' : 'High Risk'}</Text>
+                                        </View>
+                                        <View style={styles.cardDateTest}>
+                                            <Text style={styles.date}>{item.date}</Text>
+                                            <Text style={styles.time}>{item.time}</Text>
+                                        </View>
+                                    </View>
+                                </View>
+                            )}
+                            keyExtractor={(item) => item.id}
+                        />
+                    </View>
                 </>
             )}
 
@@ -132,6 +166,50 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
+    },
+    contentContainer: {
+        flex: 1,
+        paddingHorizontal: 10,
+    },
+    cardTest: {
+        backgroundColor: '#f0f0f0',
+        borderRadius: 10,
+        marginBottom: 10,
+    },
+    cardContentTest: {
+        padding: 10,
+    },
+    cardTitleTest: {
+        fontSize: 26,
+        color: '#54c42e',
+        fontWeight: '800',
+        marginBottom: 5,
+        textAlign: 'center',
+    },
+    cardTitle2Test: {
+        fontSize: 16,
+        color: '#000',
+        fontWeight: '600',
+        marginBottom: 5,
+    },
+    cardInfoTest: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginVertical: 10,
+    },
+    cardDateTest: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 10,
+    },
+    badge: {
+        backgroundColor: '#54c42e',
+        borderRadius: 5,
+        width: 10,
+        height: 10,
+        marginRight: 5,
     },
     header: {
         backgroundColor: '#54c42e',

@@ -2,10 +2,17 @@ import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, SafeAreaView, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { formatDistanceToNow } from 'date-fns';
+import { id } from 'date-fns/locale';
 
 export default function DetailBerita() {
     const router = useRouter();
     const params = useLocalSearchParams();
+
+    const formattedDate = formatDistanceToNow(new Date(params.created_at), {
+        addSuffix: true,
+        locale: id, // Format in Indonesian
+    });
     return (
         <SafeAreaView style={styles.container}>
             {/* Header */}
@@ -22,20 +29,20 @@ export default function DetailBerita() {
             <ScrollView style={styles.scrollView}>
                 <View style={styles.containerImage}>
                     <Image
-                        source={params.image}
+                        source={{ uri: params.foto }}
                         style={styles.image}
                     />
                 </View>
 
                 <View style={styles.containerContent}>
-                    <Text style={styles.title}>
-                        {params.name}
+                    <Text style={[styles.title, { fontSize: 24, fontWeight: 'bold', textAlign: 'center' }]}>
+                        {params.judul}
                     </Text>
-                    <Text style={styles.date}>
-                        {params.created_at}
+                    <Text style={[styles.date, { fontSize: 16, color: '#666', textAlign: 'center' }]}>
+                        Dibuat {formattedDate}
                     </Text>
-                    <Text style={styles.subTitle}>
-                        {params.desc}
+                    <Text style={[styles.subTitle, { fontSize: 16, textAlign: 'justify', marginTop: 20 }]}>
+                        {params.isi}
                     </Text>
                 </View>
             </ScrollView>
@@ -72,7 +79,7 @@ const styles = StyleSheet.create({
     },
     containerImage: {
         width: '100%',
-        height: 400,
+        height: 200,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -98,3 +105,4 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
 });
+
