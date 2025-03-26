@@ -116,7 +116,7 @@ export default function HomeScreen() {
                     <View style={style.educationContainer}>
                         <View style={style.navEducation}>
                             <Text style={{ fontSize: 16, fontWeight: 600 }}>Education</Text>
-                            <TouchableOpacity>
+                            <TouchableOpacity onPress={() => router.push('/berita')}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <Text style={style.linkText}>See All</Text>
                                     <FontAwesome name="angle-right" size={16} color="black" style={{ marginLeft: 5 }} />
