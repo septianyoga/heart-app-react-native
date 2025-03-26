@@ -11,6 +11,7 @@ import { set } from 'date-fns';
 export default function ProfileScreen() {
     const router = useRouter();
     const [currentUser, setCurrentUser] = useState({});
+    const [isProfile, setIsProfile] = useState(true);
     const [profileImage, setProfileImage] = useState(null);
     const [userInfo, setUserInfo] = useState({
         id: '',
@@ -19,12 +20,37 @@ export default function ProfileScreen() {
         no_hp: '',
         email: '',
         no_bpjs: '',
-        foto: ''
+        foto: '',
+        oldPassword: '',
+        newPassword: '',
+        confirmPassword: ''
     });
+
+    // const pickImage = async () => {
+    //     // Cek dan minta izin akses galeri
+    //     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    //     if (status !== 'granted') {
+    //         Alert.alert('Izin diperlukan', 'Berikan izin untuk mengakses galeri.');
+    //         return;
+    //     }
+
+    //     let result = await ImagePicker.launchImageLibraryAsync({
+    //         mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    //         allowsEditing: true,
+    //         aspect: [1, 1],
+    //         quality: 1,
+    //     });
+
+    //     if (!result.canceled) {
+    //         const selectedImage = result.assets[0]; // Ambil objek gambar
+
+    //         setProfileImage(selectedImage.uri);
+    //     }
+    // };
 
     const pickImage = async () => {
         // Cek dan minta izin akses galeri
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        const { status } = await ImagePicker.launchImageLibraryAsync();
         if (status !== 'granted') {
             Alert.alert('Izin diperlukan', 'Berikan izin untuk mengakses galeri.');
             return;
@@ -37,10 +63,13 @@ export default function ProfileScreen() {
             quality: 1,
         });
 
+        console.log("Image Picker Result:", result); // Cek apakah ada hasil
+
         if (!result.canceled) {
             const selectedImage = result.assets[0]; // Ambil objek gambar
+            console.log("Selected Image URI:", selectedImage.uri); // Cek URI gambar
 
-            setProfileImage(selectedImage.uri);
+            setProfileImage(selectedImage.uri); // Set image URI ke state
         }
     };
 
@@ -153,53 +182,121 @@ export default function ProfileScreen() {
                     </View>
                 </View>
 
-                {/* Form Fields */}
-                <View style={styles.formContainer}>
-                    <Text style={styles.inputLabel}>NIK</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={userInfo.nik}
-                        onChangeText={(text) => setUserInfo(prevState => ({ ...prevState, nik: text }))}
-                        keyboardType="numeric"
-                    />
-
-                    <Text style={styles.inputLabel}>Nama Lengkap</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={userInfo.name}
-                        onChangeText={(text) => setUserInfo(prevState => ({ ...prevState, name: text }))}
-                    />
-
-                    <Text style={styles.inputLabel}>No Telepon</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={userInfo.no_hp}
-                        onChangeText={(text) => setUserInfo(prevState => ({ ...prevState, no_hp: text }))}
-                        keyboardType="phone-pad"
-                    />
-
-                    <Text style={styles.inputLabel}>Email</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={userInfo.email}
-                        onChangeText={(text) => setUserInfo(prevState => ({ ...prevState, email: text }))}
-                        keyboardType="email-address"
-                    />
-
-                    <Text style={styles.inputLabel}>Nomor BPJS</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={userInfo.no_bpjs}
-                        onChangeText={(text) => setUserInfo(prevState => ({ ...prevState, no_bpjs: text }))}
-                    />
-
+                <View style={styles.navContainer}>
                     <TouchableOpacity
-                        style={styles.saveButton}
-                        onPress={handleSave}
+                        style={[
+                            styles.navButton,
+                            isProfile && {
+                                borderRightWidth: 1,
+                                borderRightColor: '#ccc',
+                                backgroundColor: '#54c42e',
+                                opacity: 0.5
+                            }
+                        ]}
+                        onPress={() => setIsProfile(true)}
                     >
-                        <Text style={styles.saveButtonText}>Simpan</Text>
+                        <Text style={[styles.navTitle, { color: '#000' }]}>Profile</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[
+                            styles.navButton,
+                            !isProfile && {
+                                borderRightWidth: 1,
+                                borderRightColor: '#ccc',
+                                backgroundColor: '#54c42e',
+                                opacity: 0.5
+                            }
+                        ]}
+                        onPress={() => setIsProfile(false)}
+                    >
+                        <Text style={[styles.navTitle, { color: '#000' }]}>Reset Password</Text>
                     </TouchableOpacity>
                 </View>
+                {/* Form Fields */}
+                {(isProfile &&
+                    <>
+                        <View style={styles.formContainer}>
+                            <Text style={styles.inputLabel}>NIK</Text>
+                            <TextInput
+                                style={styles.input}
+                                value={userInfo.nik}
+                                onChangeText={(text) => setUserInfo(prevState => ({ ...prevState, nik: text }))}
+                                keyboardType="numeric"
+                            />
+
+                            <Text style={styles.inputLabel}>Nama Lengkap</Text>
+                            <TextInput
+                                style={styles.input}
+                                value={userInfo.name}
+                                onChangeText={(text) => setUserInfo(prevState => ({ ...prevState, name: text }))}
+                            />
+
+                            <Text style={styles.inputLabel}>No Telepon</Text>
+                            <TextInput
+                                style={styles.input}
+                                value={userInfo.no_hp}
+                                onChangeText={(text) => setUserInfo(prevState => ({ ...prevState, no_hp: text }))}
+                                keyboardType="phone-pad"
+                            />
+
+                            <Text style={styles.inputLabel}>Email</Text>
+                            <TextInput
+                                style={styles.input}
+                                value={userInfo.email}
+                                onChangeText={(text) => setUserInfo(prevState => ({ ...prevState, email: text }))}
+                                keyboardType="email-address"
+                            />
+
+                            <Text style={styles.inputLabel}>Nomor BPJS</Text>
+                            <TextInput
+                                style={styles.input}
+                                value={userInfo.no_bpjs}
+                                onChangeText={(text) => setUserInfo(prevState => ({ ...prevState, no_bpjs: text }))}
+                            />
+
+                            <TouchableOpacity
+                                style={styles.saveButton}
+                                onPress={handleSave}
+                            >
+                                <Text style={styles.saveButtonText}>Simpan</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </>
+                )}
+
+                {(!isProfile &&
+                    <>
+                        <View style={styles.formContainer}>
+                            <Text style={styles.inputLabel}>Password Lama</Text>
+                            <TextInput
+                                style={styles.input}
+                                value={userInfo.oldPassword}
+                                onChangeText={(text) => setUserInfo({ ...userInfo, oldPassword: text })}
+                                secureTextEntry={true}
+                            />
+
+                            <Text style={styles.inputLabel}>Password Baru</Text>
+                            <TextInput
+                                style={styles.input}
+                                value={userInfo.newPassword}
+                                onChangeText={(text) => setUserInfo({ ...userInfo, newPassword: text })}
+                                secureTextEntry={true}
+                            />
+
+                            <Text style={styles.inputLabel}>Konfirmasi Password</Text>
+                            <TextInput
+                                style={styles.input}
+                                value={userInfo.confirmPassword}
+                                onChangeText={(text) => setUserInfo({ ...userInfo, confirmPassword: text })}
+                                secureTextEntry={true}
+                            />
+
+                            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+                                <Text style={styles.saveButtonText}>Simpan</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </>
+                )}
             </ScrollView>
         </SafeAreaView>
     );
@@ -334,6 +431,30 @@ const styles = StyleSheet.create({
     saveButtonText: {
         color: 'white',
         fontSize: 18,
+        fontWeight: 'bold',
+    },
+    navContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        // padding: 5,
+    },
+    navButton: {
+        width: '50%',
+        backgroundColor: '#fff',
+        // borderRadius: 5,
+        paddingVertical: 10,
+        borderTopWidth: 1,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+        borderTopColor: '#ccc',
+        // paddingHorizontal: 5,
+        alignItems: 'center',
+    },
+    navTitle: {
+        color: '#54c42e',
+        fontSize: 14,
+        textAlign: 'center',
         fontWeight: 'bold',
     },
 });

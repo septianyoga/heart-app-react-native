@@ -6,8 +6,69 @@ import AntrianComponent from '../page/Antrian';
 
 
 export default function Antrian() {
+
     const router = useRouter();
     const [isAntrian, setIsAntrian] = useState(true);
+
+    const scheduleData = [
+        {
+            id: '1',
+            name: 'Dr. Wati',
+            schedule: 'Senin - Rabu',
+            time: '08.00 - 10.00',
+            image: require('../../assets/images/user-3.jpg'),
+            status: 'red',
+        },
+        {
+            id: '2',
+            name: 'Dr. Iqbal',
+            schedule: 'Selasa - Kamis',
+            time: '10.00 - 12.00',
+            image: require('../../assets/images/user-3.jpg'),
+            status: 'green',
+        },
+        {
+            id: '3',
+            name: 'Dr. Wati',
+            schedule: 'Senin - Rabu',
+            time: '08.00 - 10.00',
+            image: require('../../assets/images/user-3.jpg'),
+            status: 'red',
+        },
+        {
+            id: '4',
+            name: 'Dr. Iqbal',
+            schedule: 'Selasa - Kamis',
+            time: '10.00 - 12.00',
+            image: require('../../assets/images/user-3.jpg'),
+            status: 'green',
+        },
+        {
+            id: '5',
+            name: 'Dr. Wati',
+            schedule: 'Senin - Rabu',
+            time: '08.00 - 10.00',
+            image: require('../../assets/images/user-3.jpg'),
+            status: 'red',
+        },
+        {
+            id: '6',
+            name: 'Dr. Iqbal',
+            schedule: 'Selasa - Kamis',
+            time: '10.00 - 12.00',
+            image: require('../../assets/images/user-3.jpg'),
+            status: 'green',
+        },
+        {
+            id: '7',
+            name: 'Dr. Iqbal',
+            schedule: 'Selasa - Kamis',
+            time: '10.00 - 12.00',
+            image: require('../../assets/images/user-3.jpg'),
+            status: 'green',
+        },
+        // Add more data as needed
+    ];
 
     const handlePress = (item) => {
         alert(`Kamu memilih ${item.nama}`);
@@ -166,4 +227,66 @@ const styles = StyleSheet.create({
         color: '000',
         fontWeight: 'bold',
     },
+
+    scheduleContainer: {
+        padding: 10,
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    scheduleItem: {
+        padding: 10,
+    },
+    scheduleItemImage: {
+        width: 160,
+        height: 160,
+        borderRadius: 10,
+        marginRight: 20,
+    },
+    imageUserSchedule: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
+        borderRadius: 10,
+    },
+    badgeStatus: {
+        width: 20,
+        height: 10,
+        borderRadius: 10,
+        marginTop: 5,
+        marginBottom: 5,
+    },
+    badgeContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    containerFooter: {
+        backgroundColor: '#fff',
+        borderTopWidth: 1,
+        borderTopColor: '#ccc',
+        padding: 10,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 5,
+        elevation: 2,
+    },
+    footerText: {
+        color: '#000',
+        fontSize: 12,
+        textAlign: 'center',
+    },
+    badgeStatusContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        marginTop: 10,
+    },
+    badgeSibuk: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    badgeKosong: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    }
 })

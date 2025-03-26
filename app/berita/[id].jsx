@@ -35,11 +35,11 @@ export default function DetailBerita() {
                 </View>
 
                 <View style={styles.containerContent}>
+                    <Text style={[styles.date, { fontSize: 12, color: '#666', textAlign: 'start' }]}>
+                        Dibuat {formattedDate}
+                    </Text>
                     <Text style={[styles.title, { fontSize: 24, fontWeight: 'bold', textAlign: 'center' }]}>
                         {params.judul}
-                    </Text>
-                    <Text style={[styles.date, { fontSize: 16, color: '#666', textAlign: 'center' }]}>
-                        Dibuat {formattedDate}
                     </Text>
                     <Text style={[styles.subTitle, { fontSize: 16, textAlign: 'justify', marginTop: 20 }]}>
                         {params.isi}
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     },
     header: {
         backgroundColor: '#54c42e',
-        padding: 5,
+        padding: 10,
         // paddingTop: 20,
         flexDirection: 'row',
         justifyContent: 'center',
@@ -72,12 +72,13 @@ const styles = StyleSheet.create({
     backButton: {
         position: 'absolute',
         left: 16,
-        top: 8,
+        top: 10,
     },
     scrollView: {
         flex: 1,
     },
     containerImage: {
+        marginTop: 0,
         width: '100%',
         height: 200,
         justifyContent: 'center',
@@ -86,10 +87,11 @@ const styles = StyleSheet.create({
     image: {
         width: '100%',
         height: '100%',
-        resizeMode: 'contain',
+        resizeMode: 'cover',
     },
     containerContent: {
-        padding: 15,
+        paddingHorizontal: 15,
+        paddingVertical: 5,
     },
     title: {
         fontSize: 18,
@@ -101,7 +103,6 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     date: {
-        fontSize: 14,
         marginBottom: 10,
     },
 });

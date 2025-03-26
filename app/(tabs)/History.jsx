@@ -67,7 +67,7 @@ export default function History() {
             </View>
             {isAntrian && (
                 <>
-                    <View style={styles.containerContent}>
+                    {/* <View style={styles.containerContent}>
                         <View style={styles.searchContainer}>
                             <FontAwesome name="search" size={20} color="gray" style={styles.searchIcon} />
                             <TextInput
@@ -77,7 +77,7 @@ export default function History() {
                                 onChangeText={setSearchText}
                             />
                         </View>
-                    </View>
+                    </View> */}
                     <View style={styles.antrianThis}>
                         {itemsAntrian.map(item => (
                             <View key={item.id} style={[styles.card, { width: '100%', height: 100 }]}>
@@ -123,7 +123,7 @@ export default function History() {
                             <FontAwesome name="search" size={20} color="gray" style={styles.searchIcon} />
                             <TextInput
                                 style={styles.searchInput}
-                                placeholder="Cari Antrian"
+                                placeholder="Cari Test"
                                 value={searchText}
                                 onChangeText={setSearchText}
                             />
@@ -135,7 +135,8 @@ export default function History() {
                             showsHorizontalScrollIndicator={false}
                             showsVerticalScrollIndicator={false}
                             renderItem={({ item }) => (
-                                <View style={styles.cardTest}>
+                                <TouchableOpacity onPress={() => router.push(`/result`)}>
+                                    <View style={styles.cardTest}>
                                     <View style={styles.cardContentTest}>
                                         <Text style={[styles.cardTitleTest, item.status === 'green' ? { color: '#54c42e' } : { color: 'red' }]}>
                                             {item.value}
@@ -151,6 +152,7 @@ export default function History() {
                                         </View>
                                     </View>
                                 </View>
+                                </TouchableOpacity>
                             )}
                             keyExtractor={(item) => item.id}
                         />
