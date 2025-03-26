@@ -123,7 +123,7 @@ export default function ProfileScreen() {
                 {/* Profile Section */}
                 <View style={styles.profileSection}>
                     <View style={styles.profileImageContainer}>
-                        {!currentUser.foto && !profileImage && (
+                        {!currentUser?.foto && !profileImage && (
                             <View style={styles.placeholderImage}>
                                 <Text style={styles.placeholderText}>105 × 105</Text>
                             </View>

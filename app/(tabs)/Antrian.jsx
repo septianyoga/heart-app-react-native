@@ -1,30 +1,13 @@
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, TextInput, FlatList } from 'react-native'
-import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react'
 import { useRouter } from 'expo-router';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import Jadwal from '../page/Jadwal';
+import AntrianComponent from '../page/Antrian';
 
 
 export default function Antrian() {
-    const [searchText, setSearchText] = useState('');
     const router = useRouter();
-
-    const dataAntrian = [
-        { id: '1', nama: 'Antrian A001' },
-        { id: '2', nama: 'Antrian A002' },
-        { id: '3', nama: 'Antrian A003' },
-        { id: '4', nama: 'Antrian A004' },
-        { id: '5', nama: 'Antrian A005' },
-        { id: '6', nama: 'Antrian A006' },
-        { id: '6', nama: 'Antrian A006' },
-        { id: '6', nama: 'Antrian A006' },
-        { id: '6', nama: 'Antrian A006' },
-        { id: '6', nama: 'Antrian A006' },
-        { id: '6', nama: 'Antrian A006' },
-        { id: '6', nama: 'Antrian A006' },
-        { id: '6', nama: 'Antrian A006' },
-        { id: '6', nama: 'Antrian A006' },
-    ];
+    const [isAntrian, setIsAntrian] = useState(true);
 
     const handlePress = (item) => {
         alert(`Kamu memilih ${item.nama}`);
@@ -38,57 +21,38 @@ export default function Antrian() {
             </View>
             <View style={styles.navContainer}>
                 <TouchableOpacity
-                    style={[styles.navButton, { borderRightWidth: 1, borderRightColor: '#ccc', backgroundColor: '#54c42e', opacity: 0.5  }]}
-                    onPress={() => router.push('(tabs)/Antrian')}
+                    style={[styles.navButton, isAntrian && {
+                        borderRightWidth: 1,
+                        borderRightColor: '#ccc',
+                        backgroundColor: '#54c42e',
+                        opacity: 0.5
+                    }]}
+                    onPress={() => setIsAntrian(true)}
                 >
                     <Text style={[styles.navTitle, { color: '#000' }]}>Lihat Antrian</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={styles.navButton}
-                    onPress={() => router.push('/page/Jadwal')}
+                    style={[styles.navButton, !isAntrian && {
+                        borderRightWidth: 1,
+                        borderRightColor: '#ccc',
+                        backgroundColor: '#54c42e',
+                        opacity: 0.5
+                    }]}
+                    onPress={() => setIsAntrian(false)}
                 >
-                    <Text style={styles.navTitle}>Lihat Jadwal</Text>
+                    <Text style={[styles.navTitle, { color: '#000' }]}>Lihat Jadwal</Text>
                 </TouchableOpacity>
             </View>
-
-            <View style={styles.containerContent}>
-                <Text style={styles.title}>
-                    ANTRIAN
-                </Text>
-                <View style={styles.searchContainer}>
-                    <FontAwesome name="search" size={20} color="gray" style={styles.searchIcon} />
-                    <TextInput
-                        style={styles.searchInput}
-                        placeholder="Cari Antrian"
-                        value={searchText}
-                        onChangeText={setSearchText}
-                    />
-                </View>
-            </View>
-            <FlatList
-                data={dataAntrian}
-                keyExtractor={(item, index) => item.id + index}
-                numColumns={2}
-                showsHorizontalScrollIndicator={false}
-                showsVerticalScrollIndicator={false}
-                renderItem={({ item }) => (
-                    <View style={styles.card}>
-                        <Text style={styles.cardTitle}>{item.nama}</Text>
-                        <TouchableOpacity style={styles.cardButton} onPress={() => handlePress(item)}>
-                            <Text style={styles.cardButtonText}>Ambil Antrian</Text>
-                        </TouchableOpacity>
-                    </View>
-                )}
-                contentContainerStyle={{
-                    marginBottom: 100, // Memberikan ruang ekstra di bawah
-                    justifyContent: 'center',
-                    alignItems: 'start',
-                }}
-                columnWrapperStyle={{
-                    justifyContent: 'space-between',
-                }}
-                scrollEnabled={true} // Mengaktifkan scrolling
-            />
+            {isAntrian && (
+                <>
+                    <AntrianComponent />
+                </>
+            )}
+            {!isAntrian && (
+                <>
+                    <Jadwal />
+                </>
+            )}
         </View>
     )
 }
