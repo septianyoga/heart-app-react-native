@@ -1,12 +1,14 @@
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, TextInput, FlatList, Image } from 'react-native'
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { getJadwal } from '../../services/jadwalService';
 
 
 export default function Jadwal() {
     const router = useRouter();
+    const [jadwal, setJadwal] = useState([]);
     const scheduleData = [
         {
             id: '1',
@@ -67,30 +69,25 @@ export default function Jadwal() {
         // Add more data as needed
     ];
 
+    const fetchJadwal = async () => {
+        try {
+            const response = await getJadwal();
+            setJadwal(response.data);
+        } catch (error) {
+            console.error('Error fetching jadwal:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchJadwal();
+    }, []);
+
     return (
         <View style={styles.container}>
             {/* Header */}
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Heart App</Text>
-            </View>
-            <View style={styles.navContainer}>
-                <TouchableOpacity
-                    style={[styles.navButton, { borderRightWidth: 1, borderRightColor: '#ccc' }]}
-                    onPress={() => router.push('(tabs)/Antrian')}
-                >
-                    <Text style={styles.navTitle}>Lihat Antrian</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.navButton, { backgroundColor: '#54c42e', opacity: 0.5 }]}
-                    onPress={() => router.push('/(tabs)/antrian')}
-                >
-                    <Text style={[styles.navTitle, { color: '#000' }]}>Lihat Jadwal</Text>
-                </TouchableOpacity>
-            </View>
-
             <View style={styles.scheduleContainer}>
                 <FlatList
-                    data={scheduleData}
+                    data={jadwal}
                     keyExtractor={(item, index) => item.id + index}
                     numColumns={2}
                     showsHorizontalScrollIndicator={false}
@@ -98,18 +95,18 @@ export default function Jadwal() {
                     renderItem={({ item }) => (
                         <View style={styles.scheduleItem}>
                             <View style={styles.scheduleItemImage}>
-                                <Image source={item.image} style={styles.imageUserSchedule} />
+                                <Image source={{ uri: item.foto }} style={styles.imageUserSchedule} />
                             </View>
                             <View>
-                                <Text style={{ fontSize: 16, fontWeight: 600 }}>{item.name}</Text>
+                                <Text style={{ fontSize: 16, fontWeight: 600 }}>{item.nama_dokter}</Text>
                                 <View style={styles.badgeContainer}>
                                     <View
-                                        style={[styles.badgeStatus, { backgroundColor: item.status, marginRight: 5 }]}
+                                        style={[styles.badgeStatus, { backgroundColor: item.sibuk == 1 ? 'red' : item.kosong == 1 ? 'green' : '', marginRight: 5 }]}
                                     />
                                 </View>
                                 <Text style={{ fontSize: 16, fontWeight: 600, marginTop: 10 }}>Jadwal Dokter</Text>
-                                <Text style={{ fontSize: 12, marginVertical: 5 }}>{item.schedule}</Text>
-                                <Text style={{ fontSize: 12, marginVertical: 5 }}>{item.time}</Text>
+                                <Text style={{ fontSize: 12, marginVertical: 5 }}>{item.hari_awal} - {item.hari_akhir}</Text>
+                                <Text style={{ fontSize: 12, marginVertical: 5 }}>{item.jam_awal} - {item.jam_akhir}</Text>
                             </View>
                         </View>
                     )}

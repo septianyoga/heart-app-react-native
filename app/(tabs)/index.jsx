@@ -1,10 +1,11 @@
 import { View, Text, StyleSheet, Image, ScrollView, FlatList, TouchableOpacity } from 'react-native';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useRouter } from 'expo-router';
 import { formatDistanceToNow } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { getBerita } from '../../services/beritaService';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function HomeScreen() {
     const [activeIndex, setActiveIndex] = useState(0);
@@ -50,6 +51,12 @@ export default function HomeScreen() {
     useEffect(() => {
         fetchBerita();
     }, []);
+
+    useFocusEffect(
+        useCallback(() => {
+            fetchBerita();
+        }, [])
+    );
 
     return (
         <FlatList
