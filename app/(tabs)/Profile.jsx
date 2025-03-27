@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { ALERT_TYPE, Dialog, AlertNotificationRoot, Toast } from 'react-native-alert-notification';
 import { storeData, getData, removeData } from '../../services/storageService';
 import * as ImagePicker from 'expo-image-picker';
-import { updateProfile } from '../../services/profileService';
+import { updatePassword, updateProfile } from '../../services/profileService';
 import { set } from 'date-fns';
 
 export default function ProfileScreen() {
@@ -107,6 +107,46 @@ export default function ProfileScreen() {
             }
         }
     };
+
+    const handleChangePassword = async () => {
+        try {
+            const response = await updatePassword(userInfo.id, {
+                current_password: userInfo.oldPassword,
+                password: userInfo.newPassword,
+                password_confirmation: userInfo.confirmPassword
+            });
+            if (response.status) {
+                setUserInfo({
+                    ...userInfo,
+                    oldPassword: '',
+                    newPassword: '',
+                    confirmPassword: ''
+                });
+                return Toast.show({
+                    type: ALERT_TYPE.SUCCESS,
+                    title: 'Success',
+                    textBody: 'Update Password Berhasil',
+                    button: 'close',
+                })
+            }
+            return Dialog.show({
+                type: ALERT_TYPE.WARNING,
+                title: 'Gagal Update',
+                textBody: response.message,
+                button: 'close',
+            })
+        } catch (error) {
+            console.log('error: ', error);
+            if (error.response) {
+                return Dialog.show({
+                    type: ALERT_TYPE.WARNING,
+                    title: 'Gagal Update',
+                    textBody: error.response.data.message,
+                    button: 'close',
+                })
+            }
+        }
+    }
 
     const handleLogout = async () => {
         Toast.show({
@@ -291,7 +331,7 @@ export default function ProfileScreen() {
                                 secureTextEntry={true}
                             />
 
-                            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+                            <TouchableOpacity style={styles.saveButton} onPress={handleChangePassword}>
                                 <Text style={styles.saveButtonText}>Simpan</Text>
                             </TouchableOpacity>
                         </View>
