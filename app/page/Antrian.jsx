@@ -1,11 +1,16 @@
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, TextInput, FlatList } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, TextInput, FlatList, Alert } from 'react-native'
+import React, { useCallback, useEffect, useState } from 'react'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { getAntrian } from '../../services/antrianService';
+import { getAntrian, ambilAntrian } from '../../services/antrianService';
+import { useFocusEffect } from '@react-navigation/native';
+import { getData } from '../../services/storageService';
+import { ALERT_TYPE, Toast } from 'react-native-alert-notification';
+import { useRouter } from 'expo-router';
 
 export default function AntrianComponent() {
     const [searchText, setSearchText] = useState('');
     const [antrian, setAntrian] = useState([]);
+    const router = useRouter();
 
     const fetchAntrian = async () => {
         try {
@@ -16,9 +21,55 @@ export default function AntrianComponent() {
         }
     };
 
+    const getNomor = async (antrian_id) => {
+        Alert.alert('Konfirmasi', 'Yakin ingin ambil antrian ini?', [
+            {
+                text: 'Tidak',
+                onPress: () => { return false },
+                style: 'cancel',
+            },
+            {
+                text: 'YA',
+                onPress: async () => {
+                    try {
+                        const user = await getData('user');
+                        const response = await ambilAntrian({
+                            antrian_id,
+                            user_id: user.id
+                        });
+                        setAntrian(response.data);
+                        if (!response.status) {
+                            return Toast.show({
+                                type: ALERT_TYPE.WARNING,
+                                title: 'Gagal',
+                                textBody: response.message,
+                                button: 'close',
+                            })
+                        }
+                        Toast.show({
+                            type: ALERT_TYPE.SUCCESS,
+                            title: 'Success',
+                            textBody: 'Antrian berhasil diambil',
+                            button: 'close',
+                        })
+                        return router.push('/(tabs)/History');
+                    } catch (error) {
+                        console.error('Error fetching antrian:', error);
+                    }
+                }
+            },
+        ]);
+    };
+
     useEffect(() => {
         fetchAntrian();
     }, []);
+
+    useFocusEffect(
+        useCallback(() => {
+            fetchAntrian();
+        }, [])
+    );
 
     return (
         <View>
@@ -38,14 +89,14 @@ export default function AntrianComponent() {
             </View>
             <FlatList
                 data={antrian}
-                keyExtractor={(item, index) => item.id + index}
+                keyExtractor={item => item.id}
                 numColumns={2}
                 showsHorizontalScrollIndicator={false}
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item }) => (
                     <View style={styles.card}>
-                        <Text style={styles.cardTitle}>Antrian {`A${('00' + item.id).slice(-3)}`}</Text>
-                        <TouchableOpacity style={styles.cardButton} onPress={() => handlePress(item)}>
+                        <Text style={styles.cardTitle}>Antrian {`A${('00' + item.no_antrian).slice(-3)}`}</Text>
+                        <TouchableOpacity style={styles.cardButton} onPress={() => getNomor(item.id)}>
                             <Text style={styles.cardButtonText}>Ambil Antrian</Text>
                         </TouchableOpacity>
                     </View>

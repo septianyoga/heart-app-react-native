@@ -2,6 +2,8 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput } from 'r
 import { FontAwesome } from '@expo/vector-icons';
 import React, { useState } from 'react'
 import { useRouter } from 'expo-router';
+import HistoryAntiran from '../page/HistoryAntiran';
+import HistoryTest from '../page/HistoryTest';
 
 export default function History() {
     const [searchText, setSearchText] = useState('');
@@ -67,96 +69,12 @@ export default function History() {
             </View>
             {isAntrian && (
                 <>
-                    {/* <View style={styles.containerContent}>
-                        <View style={styles.searchContainer}>
-                            <FontAwesome name="search" size={20} color="gray" style={styles.searchIcon} />
-                            <TextInput
-                                style={styles.searchInput}
-                                placeholder="Cari Antrian"
-                                value={searchText}
-                                onChangeText={setSearchText}
-                            />
-                        </View>
-                    </View> */}
-                    <View style={styles.antrianThis}>
-                        {itemsAntrian.map(item => (
-                            <View key={item.id} style={[styles.card, { width: '100%', height: 100 }]}>
-                                <Text style={[styles.cardTitle, { marginBottom: -5 }]}>{item.nama}</Text>
-                                <View style={[styles.cardButton]}>
-                                    <Text style={[styles.cardButtonText]}>Antrian Kamu</Text>
-                                </View>
-                            </View>
-                        ))}
-                    </View>
-                    <View style={styles.antrianHangus}>
-                        <FlatList
-                            data={dataAntrianHangus}
-                            keyExtractor={(item, index) => item.id + index}
-                            numColumns={2}
-                            showsHorizontalScrollIndicator={false}
-                            showsVerticalScrollIndicator={false}
-                            renderItem={({ item, index }) => (
-                                <View style={[styles.card, { backgroundColor: 'red' }]}>
-                                    <Text style={styles.cardTitle}>{item.nama}</Text>
-                                    <View style={[styles.cardButton]}>
-                                        <Text style={styles.cardButtonText}>Antrian Hangus</Text>
-                                    </View>
-                                </View>
-                            )}
-                            contentContainerStyle={{
-                                marginBottom: 100, // Memberikan ruang ekstra di bawah
-                                justifyContent: 'center',
-                                alignItems: 'start',
-                            }}
-                            columnWrapperStyle={{
-                                justifyContent: 'space-between',
-                            }}
-                            scrollEnabled={true}
-                        />
-                    </View>
+                    <HistoryAntiran />
                 </>
             )}
             {!isAntrian && (
                 <>
-                    <View style={styles.containerContent}>
-                        <View style={styles.searchContainer}>
-                            <FontAwesome name="search" size={20} color="gray" style={styles.searchIcon} />
-                            <TextInput
-                                style={styles.searchInput}
-                                placeholder="Cari Test"
-                                value={searchText}
-                                onChangeText={setSearchText}
-                            />
-                        </View>
-                    </View>
-                    <View style={styles.contentContainer}>
-                        <FlatList
-                            data={dataTest}
-                            showsHorizontalScrollIndicator={false}
-                            showsVerticalScrollIndicator={false}
-                            renderItem={({ item }) => (
-                                <TouchableOpacity onPress={() => router.push(`/result`)}>
-                                    <View style={styles.cardTest}>
-                                    <View style={styles.cardContentTest}>
-                                        <Text style={[styles.cardTitleTest, item.status === 'green' ? { color: '#54c42e' } : { color: 'red' }]}>
-                                            {item.value}
-                                            <Text style={styles.cardTitle2Test}>pt</Text>
-                                        </Text>
-                                        <View style={styles.cardInfoTest}>
-                                            <View style={[styles.badge, item.status === 'green' ? { backgroundColor: '#54c42e' } : { backgroundColor: 'red' }]}></View>
-                                            <Text style={[styles.cardTextTest, item.status === 'green' ? { color: '#54c42e' } : { color: 'red' }]}>{item.status === 'green' ? 'Low Risk' : 'High Risk'}</Text>
-                                        </View>
-                                        <View style={styles.cardDateTest}>
-                                            <Text style={styles.date}>{item.date}</Text>
-                                            <Text style={styles.time}>{item.time}</Text>
-                                        </View>
-                                    </View>
-                                </View>
-                                </TouchableOpacity>
-                            )}
-                            keyExtractor={(item) => item.id}
-                        />
-                    </View>
+                    <HistoryTest />
                 </>
             )}
 

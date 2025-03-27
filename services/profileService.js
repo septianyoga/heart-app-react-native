@@ -49,3 +49,12 @@ export const updateProfile = async (id, userData, profileImage) => {
         throw error.response?.data || 'Update Gagal';
     }
 };
+
+export const updatePassword = async (id, userData) => {
+    try {
+        const response = await api.post(`/update-password/${id}`, userData);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || 'Update Gagal';
+    }
+}

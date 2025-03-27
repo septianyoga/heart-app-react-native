@@ -19,34 +19,17 @@ export default function HistoryTest() {
     return (
         <View style={styles.container}>
             {/* Header */}
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Heart App</Text>
-            </View>
-            <View style={styles.navContainer}>
-                <TouchableOpacity
-                    style={[styles.navButton, { borderRightWidth: 1, borderRightColor: '#ccc' }]}
-                    onPress={() => router.push('/(tabs)/index')}
-                >
-                    <Text style={styles.navTitle}>History Antrian</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.navButton, { backgroundColor: '#54c42e', opacity: 0.5 }]}
-                    onPress={() => router.push('/page/HistoryTest')}
-                >
-                    <Text style={[styles.navTitle, { color: '#000' }]}>History Test</Text>
-                </TouchableOpacity>
-            </View>
-            <View style={styles.searchContainer}>
-                <FontAwesome name="search" size={20} color="gray" style={styles.searchIcon} />
-                <TextInput
-                    style={styles.searchInput}
-                    placeholder="Cari Test History"
-                    value={searchText}
-                    onChangeText={setSearchText}
-                />
-            </View>
-
             <View style={styles.contentContainer}>
+                <View style={styles.searchContainer}>
+                    <FontAwesome name="search" size={20} color="gray" style={styles.searchIcon} />
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="Cari Test History"
+                        value={searchText}
+                        onChangeText={setSearchText}
+                    />
+                </View>
+
                 <FlatList
                     data={dataTest}
                     showsHorizontalScrollIndicator={false}
@@ -131,6 +114,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 5,
         marginBottom: 10,
+        marginTop: 10
     },
     searchIcon: {
         marginRight: 10,
