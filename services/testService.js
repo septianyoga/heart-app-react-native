@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Konfigurasi Axios
-const API_URL = "http://192.168.236.98:8000/api";
+const API_URL = "https://api-backend.heart-apps.com/api";
 
 // Buat instance Axios dengan konfigurasi default
 const api = axios.create({
