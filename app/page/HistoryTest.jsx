@@ -1,10 +1,15 @@
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput } from 'react-native'
 import { FontAwesome } from '@expo/vector-icons';
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'expo-router';
+import { getData } from '../../services/storageService';
+import { getTestHistory } from '../../services/testService';
+import { useFocusEffect } from '@react-navigation/native';
+import { format } from 'date-fns';
 
 export default function HistoryTest() {
     const [searchText, setSearchText] = useState('');
+    const [testHistory, setTestHistory] = useState([]);
     const router = useRouter();
 
     const dataTest = [
@@ -15,6 +20,26 @@ export default function HistoryTest() {
         { id: '5', value: '14', status: 'green', date: '24 November 2025', time: '20:00' },
         { id: '6', value: '20', status: 'red', date: '24 November 2025', time: '20:00' },
     ]
+
+    const fetchHistory = async () => {
+        try {
+            const user = await getData('user');
+            const response = await getTestHistory(user.id);
+            setTestHistory(response.data);
+        } catch (error) {
+            console.error('Error fetching history test:', error);
+        }
+    }
+
+    useEffect(() => {
+        fetchHistory();
+    }, []);
+
+    useFocusEffect(
+        useCallback(() => {
+            fetchHistory();
+        }, [])
+    );
 
     return (
         <View style={styles.container}>
@@ -31,26 +56,26 @@ export default function HistoryTest() {
                 </View>
 
                 <FlatList
-                    data={dataTest}
+                    data={testHistory}
                     showsHorizontalScrollIndicator={false}
                     showsVerticalScrollIndicator={false}
                     renderItem={({ item }) => (
-                        <View style={styles.card}>
+                        <TouchableOpacity style={styles.card} onPress={() => router.push({ pathname: '/result', params: item })}>
                             <View style={styles.cardContent}>
-                                <Text style={[styles.cardTitle, item.status === 'green' ? { color: '#54c42e' } : { color: 'red' }]}>
-                                    {item.value}
+                                <Text style={[styles.cardTitle, item.score < 12 ? { color: '#54c42e' } : { color: 'red' }]}>
+                                    {item.score}
                                     <Text style={styles.cardTitle2}>pt</Text>
                                 </Text>
                                 <View style={styles.cardInfo}>
-                                    <View style={[styles.badge, item.status === 'green' ? { backgroundColor: '#54c42e' } : { backgroundColor: 'red' }]}></View>
-                                    <Text style={[styles.cardText, item.status === 'green' ? { color: '#54c42e' } : { color: 'red' }]}>{item.status === 'green' ? 'Low Risk' : 'High Risk'}</Text>
+                                    <View style={[styles.badge, item.score < 12 ? { backgroundColor: '#54c42e' } : { backgroundColor: 'red' }]}></View>
+                                    <Text style={[styles.cardText, item.score < 12 ? { color: '#54c42e' } : { color: 'red' }]}>{item.score < 12 ? 'Low Risk' : 'High Risk'}</Text>
                                 </View>
                                 <View style={styles.cardDate}>
-                                    <Text style={styles.date}>{item.date}</Text>
-                                    <Text style={styles.time}>{item.time}</Text>
+                                    <Text style={styles.date}>{format(new Date(item.created_at), 'dd MMMM yyyy')}</Text>
+                                    <Text style={styles.time}>{format(new Date(item.created_at), 'HH:mm')}</Text>
                                 </View>
                             </View>
-                        </View>
+                        </TouchableOpacity>
                     )}
                     keyExtractor={(item) => item.id}
                 />

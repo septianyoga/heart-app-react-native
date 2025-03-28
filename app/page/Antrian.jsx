@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, TextInput, FlatList, Alert } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, TextInput, FlatList, Alert, ScrollView } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { getAntrian, ambilAntrian } from '../../services/antrianService';
@@ -95,7 +95,7 @@ export default function AntrianComponent() {
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item }) => (
                     <View style={styles.card}>
-                        <Text style={styles.cardTitle}>Antrian {`A${('00' + item.no_antrian).slice(-3)}`}</Text>
+                        <Text style={styles.cardTitle}>Antrian {item.no_antrian}</Text>
                         <TouchableOpacity style={styles.cardButton} onPress={() => getNomor(item.id)}>
                             <Text style={styles.cardButtonText}>Ambil Antrian</Text>
                         </TouchableOpacity>

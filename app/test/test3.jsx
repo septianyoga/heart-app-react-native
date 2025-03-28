@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 
 export default function Test3() {
     const router = useRouter();
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(3);
     const totalPages = 12;
 
     const progressWidth = (currentPage / totalPages) * 100;
