@@ -56,7 +56,7 @@ export default function HistoryAntiran() {
             <View style={styles.antrianThis}>
                 <View style={[styles.card, { width: '100%', height: 100, backgroundColor: currentAntrian ? '#54c42e' : 'red' }]}>
                     {currentAntrian && (
-                        <Text style={[styles.cardTitle, { marginBottom: -5, marginTop: -5 }]}>Antrian {`A${('00' + currentAntrian.no_antrian).slice(-3)}`}</Text>
+                        <Text style={[styles.cardTitle, { marginBottom: -5, marginTop: -5 }]}>Antrian {currentAntrian.no_antrian}</Text>
                     )}
                     <View style={[styles.cardButton]}>
                         <Text style={[styles.cardButtonText]}>
@@ -87,12 +87,12 @@ export default function HistoryAntiran() {
                     showsVerticalScrollIndicator={false}
                     renderItem={({ item, index }) => (
                         <View style={[styles.card, { backgroundColor: 'red' }]}>
-                            <Text style={styles.cardTitle}>Antrian {`A${('00' + item.no_antrian).slice(-3)}`}</Text>
+                            <Text style={styles.cardTitle}>Antrian {item.no_antrian}</Text>
                             <View style={[styles.cardButton]}>
                                 <Text style={styles.cardButtonText}>Antrian Hangus</Text>
                             </View>
                             <Text style={{ textAlign: 'center', fontSize: 10, color: 'white' }}>
-                                Pada 27-03-2025
+                                pada {new Date(item.updated_at).toLocaleString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                             </Text>
                             <View style={[styles.badge, { backgroundColor: item.status == 3 ? '#54c42e' : 'gray', borderRadius: 7, paddingHorizontal: 6, paddingVertical: 2, marginTop: 5, alignContent: 'center', width: 'auto' }]}>
                                 <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold', textAlign: 'center' }}>

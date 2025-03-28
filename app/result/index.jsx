@@ -1,19 +1,20 @@
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 
 export default function Result() {
     const router = useRouter();
+    const params = useLocalSearchParams();
 
     // Data item tunggal
     const item = { status: 'red', points: 50 }; // Update points accordingly
 
     // Total bars and how many should be filled
     const totalBars = 8; // Total number of bars to show
-    const filledBars = Math.ceil((item.points / 100) * totalBars); // Calculate how many bars should be filled
+    const filledBars = Math.ceil((params.score / 12) * totalBars); // Calculate how many bars should be filled
 
-    const barColor = item.status === 'green' ? '#54c42e' : 'red'; // Set bar color based on status
+    const barColor = params.score < 12 ? '#54c42e' : 'red'; // Set bar color based on status
 
     // Data for answer items
     const answers = [
@@ -34,20 +35,20 @@ export default function Result() {
 
             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
                 <View style={styles.containerContent}>
-                    <Text style={[styles.point, item.status === 'green' ? { color: '#54c42e' } : { color: 'red' }]}>
-                        {item.points}<Text style={[styles.point2]}>pt</Text>
+                    <Text style={[styles.point, params.score < 12 ? { color: '#54c42e' } : { color: 'red' }]}>
+                        {params.score}<Text style={[styles.point2]}>pt</Text>
                     </Text>
                     <View style={styles.badgeContainer}>
                         <View
                             style={[
                                 styles.badge,
-                                item.status === 'green'
+                                params.score < 12
                                     ? { backgroundColor: '#54c42e' }
                                     : { backgroundColor: 'red' },
                             ]}
                         />
                         <Text style={[styles.cardTextTest]}>
-                            {item.status === 'green' ? 'Low Risk' : 'High Risk'}
+                            {params.score < 12 ? 'Low Risk' : 'High Risk'}
                         </Text>
                     </View>
 
@@ -69,27 +70,28 @@ export default function Result() {
                     <View style={styles.infoContainer}>
                         <View style={styles.infoItem}>
                             <View style={[styles.badgeInfo, { backgroundColor: '#54c42e' }]} />
-                            <Text style={styles.infoTextInfo}>{'<'}16 Low Risk</Text>
+                            <Text style={styles.infoTextInfo}>{'<'}12 Low Risk</Text>
                         </View>
                         <View style={styles.infoItem}>
                             <View style={[styles.badgeInfo, { backgroundColor: 'red' }]} />
-                            <Text style={styles.infoTextInfo}>{'>'}16 High Risk</Text>
+                            <Text style={styles.infoTextInfo}>{'>'}12 High Risk</Text>
                         </View>
                     </View>
                     <Text style={styles.infoText}>
-                        Score Tinggi : Segera dilakukan perawatan di Rumah Sakit
+                        {params.score < 12 ? 'Score Rendah : Tidak perlu dilakukan perawatan di Rumah Sakit' : 'Score Tinggi : Segera dilakukan perawatan di Rumah Sakit'}
                     </Text>
 
-                    {/* Answer Items - Rendered Dynamically */}
-                    {answers.map((answer, index) => (
-                        <View key={index} style={styles.answerItem}>
-                            <Text style={[styles.answerText, { marginBottom: 25 }]}>{answer.label}</Text>
-                            <Text style={[styles.answerText, { color: '#fff' }]}>{answer.value}</Text>
-                        </View>
-                    ))}
+                    <View style={styles.answerItem}>
+                        <Text style={[styles.answerText, { marginBottom: 25 }]}>Umur</Text>
+                        <Text style={[styles.answerText, { color: '#fff' }]}>{params.age}</Text>
+                    </View>
+                    <View style={styles.answerItem}>
+                        <Text style={[styles.answerText, { marginBottom: 25 }]}>Jenis Kelamin</Text>
+                        <Text style={[styles.answerText, { color: '#fff' }]}>{params.gender == 1 ? 'Pria' : 'Wanita'}</Text>
+                    </View>
                     <TouchableOpacity
                         style={styles.button}
-                        onPress={() => router.push('/(tabs)/index')}
+                        onPress={() => Alert.alert('Comming Soon', 'Fitur ini sedang dalam pengembangan')}
                     >
                         <Ionicons name="cloud-download" size={24} color="white" style={styles.icon} />
                         <Text style={styles.buttonText}>Download PDF</Text>

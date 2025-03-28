@@ -1,33 +1,35 @@
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image } from 'react-native';
 import React from 'react';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 export default function Report() {
     const router = useRouter();
+    const params = useLocalSearchParams();
 
+    console.log(params)
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: params.score < 12 ? '#54c42e' : '#ff0000' }]}>
             {/* Green Background Area with Curve */}
             <View style={styles.topContainer} />
             {/* Score Area */}
             <View style={styles.containerImage}>
-                <View style={styles.imageWrapper}>
+                <View style={[styles.imageWrapper, { borderColor: params.score < 12 ? '#fff' : '#ff0000' }]}>
                     <Image source={require('../../assets/images/doctor.png')} style={styles.image} />
                 </View>
             </View>
-            <View style={styles.scoreContainer}>
-                <Text style={styles.score}>7<Text style={{ fontSize: 35 }}>pt</Text>
+            <View style={[styles.scoreContainer, { backgroundColor: params.score < 12 ? '#54c42e' : '#ff0000' }]}>
+                <Text style={styles.score}>{params.score}<Text style={{ fontSize: 35 }}>pt</Text>
                 </Text>
-                <Text style={styles.riskText}>Low Risk!</Text>
-                <Text style={styles.description}>Resiko rendah. Tidak perlu dilakukan perawatan di Rumah Sakit.</Text>
+                <Text style={styles.riskText}>{params.score < 12 ? 'Low Risk' : 'High Risk'}!</Text>
+                <Text style={styles.description}>{params.score < 12 ? 'Resiko rendah. Tidak perlu dilakukan perawatan di Rumah Sakit.' : 'Resiko tinggi. Perlu dilakukan perawatan di Rumah Sakit.'}</Text>
             </View>
 
             {/* Buttons */}
             <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.yaButton} onPress={() => router.push('/result')}>
+                <TouchableOpacity style={styles.yaButton} onPress={() => router.push({ pathname: '/result', params: params })}>
                     <Text style={styles.yaButtonText}>Lihat Detail</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.tidakButton } onPress={() => router.push('/(tabs)/test')}>
+                <TouchableOpacity style={styles.tidakButton} onPress={() => router.push('/(tabs)/Test')}>
                     <Text style={styles.tidakButtonText}>Test Ulang</Text>
                 </TouchableOpacity>
             </View>
@@ -38,7 +40,6 @@ export default function Report() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#54c42e',
     },
     topContainer: {
         flex: 1,
@@ -57,7 +58,6 @@ const styles = StyleSheet.create({
         zIndex: 0,
         alignItems: 'center',
         marginBottom: 20,
-        backgroundColor: '#54c42e',
     },
     containerImage: {
         flex: 1,
@@ -72,7 +72,6 @@ const styles = StyleSheet.create({
         borderRadius: 150,
         backgroundColor: '#fff',
         borderWidth: 5,
-        borderColor: '#54c42e',
     },
     image: {
         width: 200,

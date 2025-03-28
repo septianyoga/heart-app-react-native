@@ -45,7 +45,7 @@ export default function TestHealth() {
                     resizeMode="cover" e
                     isLooping={true}
                 />
-                <TouchableOpacity style={styles.button} onPress={() => router.push('/test/test1')}>
+                <TouchableOpacity style={styles.button} onPress={() => router.push('/test/StartTest')}>
                     <Text style={styles.buttonText}>Mulai</Text>
                 </TouchableOpacity>
                 <View style={styles.imageContainer}>
