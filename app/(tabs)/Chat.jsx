@@ -1,60 +1,149 @@
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { sendMessage, fetchMessages } from '../../services/chatService';
+import { ALERT_TYPE, Dialog } from 'react-native-alert-notification';
+import { getData } from '../../services/storageService';
 
 export default function Chat() {
+    const [message, setMessage] = React.useState('');
+    const [messages, setMessages] = React.useState([]);
+    const [userId, setUserId] = useState(null);
+
+    const scrollViewRef = useRef();
+
+    useEffect(() => {
+        const fetchUserId = async () => {
+            try {
+                const user = await getData('user');
+                if (user && user.id) {
+                    setUserId(user.id);
+                    console.log('User ID:', user.id);
+                }
+            } catch (error) {
+                console.log('Error fetching user data:', error);
+            }
+        };
+
+        fetchUserId();
+    }, []);
+
+    useEffect(() => {
+        if (!userId) return;
+
+        const fetchChatMessages = async () => {
+            try {
+                const response = await fetchMessages({ sender_id: userId });
+                console.log('response fetch: ', response.status);
+                if (response.status) {
+                    const updatedMessages = response.data.map(msg => ({
+                        ...msg,
+                        senderId: msg.sender_id || userId,
+                    }));
+                    setMessages(updatedMessages);
+                } else {
+                    Dialog.show({
+                        type: ALERT_TYPE.WARNING,
+                        title: 'Gagal Mengambil Pesan',
+                        textBody: response.message,
+                        button: 'close',
+                    });
+                }
+            } catch (error) {
+                console.log('Error fetching messages:', error.message);
+                Dialog.show({
+                    type: ALERT_TYPE.ERROR,
+                    title: 'Error',
+                    textBody: 'Terjadi kesalahan saat mengambil pesan.',
+                    button: 'close',
+                });
+            }
+        };
+
+        fetchChatMessages(); // Fetch pertama kali
+
+        const interval = setInterval(fetchChatMessages, 1000); // Fetch setiap 3 detik
+
+        return () => clearInterval(interval); // Cleanup interval saat komponen unmount
+    }, [userId]);
+
+
+    useEffect(() => {
+        if (scrollViewRef.current) {
+            scrollViewRef.current.scrollToEnd({ animated: true });
+        }
+    }, [messages]);
+
+    const handleSendMessage = async () => {
+        if (!message || message.trim() === '') return;
+
+        try {
+            const newUserMessage = { senderId: userId, message: message };
+            console.log('newUserMessage: ', newUserMessage);
+            setMessages((prevMessages) => [...prevMessages, newUserMessage]);
+            const response = await sendMessage({ message, receiver_id: 1 });
+
+            if (response.status) {
+                const newAdminMessage = { senderId: 1, message: response.data.reply };
+                setMessages((prevMessages) => [...prevMessages, newAdminMessage]);
+                setMessage('');
+            } else {
+                Dialog.show({
+                    type: ALERT_TYPE.WARNING,
+                    title: 'Gagal Pesan',
+                    textBody: response.message,
+                    button: 'close',
+                });
+            }
+        } catch (error) {
+            console.log('Error sending message: ', error.message);
+            Dialog.show({
+                type: ALERT_TYPE.ERROR,
+                title: 'Error',
+                textBody: 'Terjadi kesalahan saat mengirim pesan.',
+                button: 'close',
+            });
+        }
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>Heart App</Text>
             </View>
 
-            <ScrollView contentContainerStyle={styles.chatContainer} showsVerticalScrollIndicator={false}>
-                {/* Chat Messages */}
-                <View style={[styles.messageContainer, styles.adminMessage]}>
-                    <Text style={styles.botText}>Halo, ada yang bisa saya bantu?</Text>
-                </View>
-                <View style={[styles.messageContainer, styles.userMessage]}>
-                    <Text style={styles.userText}>Saya ingin bertanya tentang layanan Anda.</Text>
-                </View>
-                <View style={[styles.messageContainer, styles.adminMessage]}>
-                    <Text style={styles.botText}>Tentu, apa yang ingin Anda ketahui?</Text>
-                </View>
-                <View style={[styles.messageContainer, styles.userMessage]}>
-                    <Text style={styles.userText}>Apakah ada promo khusus bulan ini?</Text>
-                </View>
-                <View style={[styles.messageContainer, styles.adminMessage]}>
-                    <Text style={styles.botText}>Tentu, apa yang ingin Anda ketahui?</Text>
-                </View>
-                <View style={[styles.messageContainer, styles.userMessage]}>
-                    <Text style={styles.userText}>Apakah ada promo khusus bulan ini?</Text>
-                </View>
-                <View style={[styles.messageContainer, styles.adminMessage]}>
-                    <Text style={styles.botText}>Tentu, apa yang ingin Anda ketahui?</Text>
-                </View>
-                <View style={[styles.messageContainer, styles.userMessage]}>
-                    <Text style={styles.userText}>Apakah ada promo khusus bulan ini?</Text>
-                </View>
-                <View style={[styles.messageContainer, styles.adminMessage]}>
-                    <Text style={styles.botText}>Tentu, apa yang ingin Anda ketahui?</Text>
-                </View>
-                <View style={[styles.messageContainer, styles.userMessage]}>
-                    <Text style={styles.userText}>Apakah ada promo khusus bulan ini?</Text>
-                </View>
+            <ScrollView
+                contentContainerStyle={styles.chatContainer}
+                showsVerticalScrollIndicator={false}
+                ref={scrollViewRef}
+            >
+                {messages.map((msg, index) => (
+                    msg.message && msg.message.trim() !== '' && (
+                        <View
+                            key={index}
+                            style={[
+                                styles.messageContainer,
+                                msg.senderId === userId ? styles.userMessage : styles.adminMessage,
+                            ]}
+                        >
+                            <Text style={msg.senderId === userId ? styles.userText : styles.botText}>
+                                {msg.message}
+                            </Text>
+                        </View>
+                    )
+                ))}
             </ScrollView>
 
             <View style={styles.inputContainer}>
-                <TouchableOpacity style={styles.attachButton}>
-                    <Ionicons name="attach" size={24} color="gray" />
-                </TouchableOpacity>
-
                 <TextInput
                     style={styles.inputText}
                     placeholder="Ketik pesan..."
+                    value={message}
+                    onChangeText={setMessage}
                     placeholderTextColor="#888"
                 />
 
-                <TouchableOpacity style={styles.sendButton}>
+                <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
                     <Ionicons name="send" size={24} color="white" />
                 </TouchableOpacity>
             </View>
@@ -70,11 +159,9 @@ const styles = StyleSheet.create({
     header: {
         backgroundColor: '#54c42e',
         padding: 5,
-        // paddingTop: 20,
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        position: 'relative',
     },
     headerTitle: {
         color: 'white',
@@ -93,11 +180,11 @@ const styles = StyleSheet.create({
         marginHorizontal: 10,
     },
     userMessage: {
-        alignSelf: 'flex-end',
+        alignSelf: 'flex-end', // Align user's messages to the right
         backgroundColor: '#54c42e',
     },
     adminMessage: {
-        alignSelf: 'flex-start',
+        alignSelf: 'flex-start', // Align admin's messages to the left
         backgroundColor: '#ddd',
     },
     userText: {
@@ -119,11 +206,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 0,
         width: '100%',
-    },
-    attachButton: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 10,
     },
     inputText: {
         flex: 1,

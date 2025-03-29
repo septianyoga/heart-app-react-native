@@ -16,46 +16,56 @@ export default function TabLayout() {
             }
         }
         checkLogin();
-    })
+    }, []);
+
     return (
-        <Tabs screenOptions={{ headerShown: false }}>
-            <Tabs.Screen name='index'
+        <Tabs screenOptions={{ 
+            headerShown: false, 
+            tabBarActiveTintColor: '#54c42e', // Warna hijau untuk tab aktif
+            tabBarInactiveTintColor: '#000', // Warna abu-abu untuk tab tidak aktif
+        }}>
+            <Tabs.Screen 
+                name="index"
                 options={{
                     tabBarLabel: 'Home',
-                    tabBarIcon: (color) => <FontAwesome name="home" size={24} color={color} />
+                    tabBarIcon: ({ color }) => <FontAwesome name="home" size={24} color={color} />
                 }}
             />
-            <Tabs.Screen name='Test'
+            <Tabs.Screen 
+                name="Test"
                 options={{
                     tabBarLabel: 'Test',
-                    tabBarIcon: (color) => <FontAwesome name="heartbeat" size={24} color={color} />
+                    tabBarIcon: ({ color }) => <FontAwesome name="heartbeat" size={24} color={color} />
                 }}
             />
-            <Tabs.Screen name='Antrian'
+            <Tabs.Screen 
+                name="Antrian"
                 options={{
                     tabBarLabel: 'Antrian',
-                    tabBarIcon: (color) => <MaterialCommunityIcons name="human-queue" size={24} color={color} />
+                    tabBarIcon: ({ color }) => <MaterialCommunityIcons name="human-queue" size={24} color={color} />
                 }}
             />
-            <Tabs.Screen name='History'
+            <Tabs.Screen 
+                name="History"
                 options={{
                     tabBarLabel: 'History',
-                    tabBarIcon: (color) => <MaterialCommunityIcons name="history" size={24} color={color} />
+                    tabBarIcon: ({ color }) => <MaterialCommunityIcons name="history" size={24} color={color} />
                 }}
             />
-            <Tabs.Screen name='Chat'
+            <Tabs.Screen 
+                name="Chat"
                 options={{
                     tabBarLabel: 'Chat',
-                    tabBarIcon: (color) => <MaterialCommunityIcons name="chat" size={24} color={color} />
+                    tabBarIcon: ({ color }) => <MaterialCommunityIcons name="chat" size={24} color={color} />
                 }}
             />
-            <Tabs.Screen name='Profile'
+            <Tabs.Screen 
+                name="Profile"
                 options={{
                     tabBarLabel: 'Profile',
-                    tabBarIcon: (color) => <MaterialCommunityIcons name="account" size={24} color={color} />
+                    tabBarIcon: ({ color }) => <MaterialCommunityIcons name="account" size={24} color={color} />
                 }}
             />
-            
         </Tabs>
     )
 }
