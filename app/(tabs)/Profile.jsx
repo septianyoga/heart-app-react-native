@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, SafeAreaView, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, SafeAreaView, ScrollView, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { ALERT_TYPE, Dialog, AlertNotificationRoot, Toast } from 'react-native-alert-notification';
 import { storeData, getData, removeData } from '../../services/storageService';
 import * as ImagePicker from 'expo-image-picker';
 import { updatePassword, updateProfile } from '../../services/profileService';
-import { set } from 'date-fns';
 
 export default function ProfileScreen() {
     const router = useRouter();
-    const [currentUser, setCurrentUser] = useState({});
+    const [currentUser, setCurrentUser] = useState(null);
     const [isProfile, setIsProfile] = useState(true);
     const [profileImage, setProfileImage] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [imageLoading, setImageLoading] = useState(false);
     const [userInfo, setUserInfo] = useState({
         id: '',
         nik: '',
@@ -26,95 +27,100 @@ export default function ProfileScreen() {
         confirmPassword: ''
     });
 
-    // const pickImage = async () => {
-    //     // Cek dan minta izin akses galeri
-    //     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    //     if (status !== 'granted') {
-    //         Alert.alert('Izin diperlukan', 'Berikan izin untuk mengakses galeri.');
-    //         return;
-    //     }
-
-    //     let result = await ImagePicker.launchImageLibraryAsync({
-    //         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    //         allowsEditing: true,
-    //         aspect: [1, 1],
-    //         quality: 1,
-    //     });
-
-    //     if (!result.canceled) {
-    //         const selectedImage = result.assets[0]; // Ambil objek gambar
-
-    //         setProfileImage(selectedImage.uri);
-    //     }
-    // };
-
     const pickImage = async () => {
-        // Cek dan minta izin akses galeri
-        const { status } = await ImagePicker.launchImageLibraryAsync();
-        if (status !== 'granted') {
-            Alert.alert('Izin diperlukan', 'Berikan izin untuk mengakses galeri.');
-            return;
-        }
-
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 1,
-        });
-
-        console.log("Image Picker Result:", result); // Cek apakah ada hasil
-
-        if (!result.canceled) {
-            const selectedImage = result.assets[0]; // Ambil objek gambar
-            console.log("Selected Image URI:", selectedImage.uri); // Cek URI gambar
-
-            setProfileImage(selectedImage.uri); // Set image URI ke state
+        if (isLoading) return;
+    
+        try {
+            setIsLoading(true);
+            setImageLoading(true);
+    
+            // Meminta izin akses galeri
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
+                Dialog.show({
+                    type: ALERT_TYPE.WARNING,
+                    title: 'Izin diperlukan',
+                    textBody: 'Aplikasi membutuhkan izin untuk mengakses galeri foto Anda.',
+                    button: 'close',
+                });
+                return;
+            }
+    
+            // Membuka image picker dengan API baru
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaType.Images, // <-- Perubahan di sini
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 0.8,
+                selectionLimit: 1, // Hanya memilih 1 gambar
+            });
+    
+            if (!result.canceled && result.assets && result.assets.length > 0) {
+                const selectedImage = result.assets[0];
+                const imageUri = `${selectedImage.uri}?${Date.now()}`;
+                setProfileImage(imageUri);
+                console.log('Image selected:', imageUri);
+            }
+        } catch (error) {
+            console.error("Error picking image:", error);
+            Dialog.show({
+                type: ALERT_TYPE.DANGER,
+                title: 'Error',
+                textBody: 'Gagal memilih gambar: ' + error.message,
+                button: 'close',
+            });
+        } finally {
+            setIsLoading(false);
+            setImageLoading(false);
         }
     };
 
-
     const handleSave = async () => {
         try {
+            setIsLoading(true);
             const response = await updateProfile(userInfo.id, userInfo, profileImage);
-            console.log('response : ', response);
+            console.log(response);
+            
             if (response.status) {
                 await removeData('user');
                 await storeData('user', response.data);
                 await setUser();
-                return Toast.show({
+                Toast.show({
                     type: ALERT_TYPE.SUCCESS,
-                    title: 'Success',
-                    textBody: 'Update Berhasil',
+                    title: 'Berhasil',
+                    textBody: 'Profil berhasil diperbarui',
                     button: 'close',
-                })
-            }
-            return Dialog.show({
-                type: ALERT_TYPE.WARNING,
-                title: 'Gagal Update',
-                textBody: response.message,
-                button: 'close',
-            })
-        } catch (error) {
-            console.log('error gan: ', error);
-            if (error.response) {
-                return Dialog.show({
+                });
+            } else {
+                Dialog.show({
                     type: ALERT_TYPE.WARNING,
-                    title: 'Gagal Update',
-                    textBody: error.response.data.message,
+                    title: 'Gagal',
+                    textBody: response.message || 'Gagal memperbarui profil',
                     button: 'close',
-                })
+                });
             }
+        } catch (error) {
+            console.error('Update profile error:', error);
+            Dialog.show({
+                type: ALERT_TYPE.DANGER,
+                title: 'Error',
+                textBody: error.response?.data?.message || 'Terjadi kesalahan saat memperbarui profil',
+                button: 'close',
+            });
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const handleChangePassword = async () => {
         try {
+            setIsLoading(true);
             const response = await updatePassword(userInfo.id, {
                 current_password: userInfo.oldPassword,
                 password: userInfo.newPassword,
                 password_confirmation: userInfo.confirmPassword
             });
+            
             if (response.status) {
                 setUserInfo({
                     ...userInfo,
@@ -122,223 +128,291 @@ export default function ProfileScreen() {
                     newPassword: '',
                     confirmPassword: ''
                 });
-                return Toast.show({
+                Toast.show({
                     type: ALERT_TYPE.SUCCESS,
-                    title: 'Success',
-                    textBody: 'Update Password Berhasil',
+                    title: 'Berhasil',
+                    textBody: 'Password berhasil diubah',
                     button: 'close',
-                })
-            }
-            return Dialog.show({
-                type: ALERT_TYPE.WARNING,
-                title: 'Gagal Update',
-                textBody: response.message,
-                button: 'close',
-            })
-        } catch (error) {
-            console.log('error: ', error);
-            if (error.response) {
-                return Dialog.show({
+                });
+            } else {
+                Dialog.show({
                     type: ALERT_TYPE.WARNING,
-                    title: 'Gagal Update',
-                    textBody: error.response.data.message,
+                    title: 'Gagal',
+                    textBody: response.message || 'Gagal mengubah password',
                     button: 'close',
-                })
+                });
             }
+        } catch (error) {
+            console.error('Change password error:', error);
+            Dialog.show({
+                type: ALERT_TYPE.DANGER,
+                title: 'Error',
+                textBody: error.response?.data?.message || 'Terjadi kesalahan saat mengubah password',
+                button: 'close',
+            });
+        } finally {
+            setIsLoading(false);
         }
-    }
+    };
 
     const handleLogout = async () => {
-        Toast.show({
-            type: ALERT_TYPE.SUCCESS,
-            title: 'Success Logout',
-            textBody: 'Selamat tinggal, ' + userInfo.name + '👋',
-        })
-        console.log('Logout success');
-        await removeData('token');
-        await removeData('user');
-        await removeData('isLogin');
-        router.push('/login');
+        try {
+            await removeData('token');
+            await removeData('user');
+            await removeData('isLogin');
+            
+            Toast.show({
+                type: ALERT_TYPE.SUCCESS,
+                title: 'Berhasil Logout',
+                textBody: 'Sampai jumpa lagi, ' + (userInfo.name || 'Pengguna') + ' 👋',
+            });
+            
+            router.push('/login');
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
     };
 
     const setUser = async () => {
-        const user = await getData('user');
-        setCurrentUser(user);
-        if (user) {
-            setUserInfo({
-                id: user.id || '',
-                nik: user.nik || '',
-                name: user.name || '',
-                no_hp: user.no_hp || '',
-                email: user.email || '',
-                no_bpjs: user.no_bpjs || '',
-                foto: user.foto || ''
-            });
+        try {
+            const user = await getData('user');
+            if (user) {
+                setCurrentUser(user);
+                setUserInfo({
+                    id: user.id || '',
+                    nik: user.nik || '',
+                    name: user.name || '',
+                    no_hp: user.no_hp || '',
+                    email: user.email || '',
+                    no_bpjs: user.no_bpjs || '',
+                    foto: user.foto || '',
+                    oldPassword: '',
+                    newPassword: '',
+                    confirmPassword: ''
+                });
+                
+                // Jika ada foto profil, tambahkan timestamp untuk memastikan gambar fresh
+                if (user.foto) {
+                    setProfileImage(`${user.foto}?${Date.now()}`);
+                }
+            }
+        } catch (error) {
+            console.error('Error loading user data:', error);
         }
-
     };
+
     useEffect(() => {
         setUser();
-    }, [profileImage]);
+    }, []);
 
     return (
-        <SafeAreaView style={styles.container}>
-            {/* Header */}
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Heart App</Text>
-            </View>
+        <AlertNotificationRoot>
+            <SafeAreaView style={styles.container}>
+                {/* Header */}
+                <View style={styles.header}>
+                    <Text style={styles.headerTitle}>Heart App</Text>
+                </View>
 
-            <ScrollView style={styles.scrollView}>
-                {/* Profile Section */}
-                <View style={styles.profileSection}>
-                    <View style={styles.profileImageContainer}>
-                        {!currentUser?.foto && !profileImage && (
-                            <View style={styles.placeholderImage}>
-                                <Text style={styles.placeholderText}>105 × 105</Text>
-                            </View>
-                        )}
-                        {profileImage ? (
-                            <Image source={{ uri: profileImage }} style={styles.profileImage} />
-                        ) : (
-                            <Image source={{ uri: currentUser.foto }} style={styles.profileImage} />
-                        )}
+                <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+                    {/* Profile Section */}
+                    <View style={styles.profileSection}>
+                        <View style={styles.profileImageContainer}>
+                            {imageLoading ? (
+                                <View style={[styles.profileImage, styles.loadingContainer]}>
+                                    <ActivityIndicator size="large" color="#54c42e" />
+                                </View>
+                            ) : profileImage ? (
+                                <Image 
+                                    source={{ uri: profileImage }} 
+                                    style={styles.profileImage}
+                                    onLoadStart={() => setImageLoading(true)}
+                                    onLoadEnd={() => setImageLoading(false)}
+                                    onError={(e) => {
+                                        console.log('Image load error:', e.nativeEvent.error);
+                                        setImageLoading(false);
+                                    }}
+                                />
+                            ) : currentUser?.foto ? (
+                                <Image 
+                                    source={{ uri: currentUser.foto }} 
+                                    style={styles.profileImage}
+                                    onLoadStart={() => setImageLoading(true)}
+                                    onLoadEnd={() => setImageLoading(false)}
+                                    onError={(e) => {
+                                        console.log('Image load error:', e.nativeEvent.error);
+                                        setImageLoading(false);
+                                    }}
+                                />
+                            ) : (
+                                <View style={styles.placeholderImage}>
+                                    <Ionicons name="person" size={50} color="#666" />
+                                </View>
+                            )}
+                            <TouchableOpacity
+                                style={styles.uploadButton}
+                                onPress={pickImage}
+                                disabled={isLoading}
+                            >
+                                <Ionicons name="camera" size={20} color="white" />
+                            </TouchableOpacity>
+                        </View>
+
+                        <View style={styles.userInfo}>
+                            <Text style={styles.userName} numberOfLines={1} ellipsizeMode="tail">
+                                {currentUser?.name || 'Nama Pengguna'}
+                            </Text>
+                            <Text style={styles.userEmail} numberOfLines={1} ellipsizeMode="tail">
+                                {currentUser?.email || 'email@example.com'}
+                            </Text>
+                            <Text style={styles.userPhone} numberOfLines={1} ellipsizeMode="tail">
+                                {currentUser?.no_hp || '08123456789'}
+                            </Text>
+
+                            <TouchableOpacity 
+                                style={styles.logoutButton} 
+                                onPress={handleLogout}
+                                disabled={isLoading}
+                            >
+                                <Text style={styles.logoutText}>Logout</Text>
+                                <Ionicons name="exit-outline" size={18} color="white" />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    {/* Navigation Tabs */}
+                    <View style={styles.navContainer}>
                         <TouchableOpacity
-                            style={styles.uploadButton}
-                            onPress={pickImage}
+                            style={[
+                                styles.navButton,
+                                isProfile && styles.activeNavButton
+                            ]}
+                            onPress={() => setIsProfile(true)}
+                            disabled={isLoading}
                         >
-                            <Ionicons name="image" size={24} color="white" />
+                            <Text style={styles.navTitle}>Profil</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[
+                                styles.navButton,
+                                !isProfile && styles.activeNavButton
+                            ]}
+                            onPress={() => setIsProfile(false)}
+                            disabled={isLoading}
+                        >
+                            <Text style={styles.navTitle}>Ganti Password</Text>
                         </TouchableOpacity>
                     </View>
 
-                    <View style={styles.userInfo}>
-                        <Text style={styles.userName}>{currentUser.name}</Text>
-                        <Text style={styles.userEmail}>{currentUser.email}</Text>
-                        <Text style={styles.userPhone}>{currentUser.no_hp}</Text>
-
-                        <TouchableOpacity style={styles.logoutButton} onPress={() => handleLogout()}>
-                            <Text style={styles.logoutText}>Logout</Text>
-                            <Ionicons name="power" size={20} color="white" style={styles.logoutIcon} />
-                        </TouchableOpacity>
-                    </View>
-                </View>
-
-                <View style={styles.navContainer}>
-                    <TouchableOpacity
-                        style={[
-                            styles.navButton,
-                            isProfile && {
-                                borderRightWidth: 1,
-                                borderRightColor: '#ccc',
-                                backgroundColor: '#54c42e',
-                                opacity: 0.5
-                            }
-                        ]}
-                        onPress={() => setIsProfile(true)}
-                    >
-                        <Text style={[styles.navTitle, { color: '#000' }]}>Profile</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[
-                            styles.navButton,
-                            !isProfile && {
-                                borderRightWidth: 1,
-                                borderRightColor: '#ccc',
-                                backgroundColor: '#54c42e',
-                                opacity: 0.5
-                            }
-                        ]}
-                        onPress={() => setIsProfile(false)}
-                    >
-                        <Text style={[styles.navTitle, { color: '#000' }]}>Reset Password</Text>
-                    </TouchableOpacity>
-                </View>
-                {/* Form Fields */}
-                {(isProfile &&
-                    <>
+                    {/* Form Section */}
+                    {isProfile ? (
                         <View style={styles.formContainer}>
                             <Text style={styles.inputLabel}>NIK</Text>
                             <TextInput
                                 style={styles.input}
                                 value={userInfo.nik}
-                                onChangeText={(text) => setUserInfo(prevState => ({ ...prevState, nik: text }))}
-                                keyboardType="numeric"
+                                onChangeText={(text) => setUserInfo({...userInfo, nik: text})}
+                                placeholder="Masukkan NIK"
+                                editable={!isLoading}
                             />
 
                             <Text style={styles.inputLabel}>Nama Lengkap</Text>
                             <TextInput
                                 style={styles.input}
                                 value={userInfo.name}
-                                onChangeText={(text) => setUserInfo(prevState => ({ ...prevState, name: text }))}
+                                onChangeText={(text) => setUserInfo({...userInfo, name: text})}
+                                placeholder="Masukkan nama lengkap"
+                                editable={!isLoading}
                             />
 
                             <Text style={styles.inputLabel}>No Telepon</Text>
                             <TextInput
                                 style={styles.input}
                                 value={userInfo.no_hp}
-                                onChangeText={(text) => setUserInfo(prevState => ({ ...prevState, no_hp: text }))}
+                                onChangeText={(text) => setUserInfo({...userInfo, no_hp: text})}
+                                placeholder="Masukkan nomor telepon"
                                 keyboardType="phone-pad"
+                                editable={!isLoading}
                             />
 
                             <Text style={styles.inputLabel}>Email</Text>
                             <TextInput
                                 style={styles.input}
                                 value={userInfo.email}
-                                onChangeText={(text) => setUserInfo(prevState => ({ ...prevState, email: text }))}
+                                onChangeText={(text) => setUserInfo({...userInfo, email: text})}
+                                placeholder="Masukkan email"
                                 keyboardType="email-address"
+                                editable={!isLoading}
                             />
 
                             <Text style={styles.inputLabel}>Nomor BPJS</Text>
                             <TextInput
                                 style={styles.input}
                                 value={userInfo.no_bpjs}
-                                onChangeText={(text) => setUserInfo(prevState => ({ ...prevState, no_bpjs: text }))}
+                                onChangeText={(text) => setUserInfo({...userInfo, no_bpjs: text})}
+                                placeholder="Masukkan nomor BPJS"
+                                editable={!isLoading}
                             />
 
                             <TouchableOpacity
-                                style={styles.saveButton}
+                                style={[styles.saveButton, isLoading && styles.disabledButton]}
                                 onPress={handleSave}
+                                disabled={isLoading}
                             >
-                                <Text style={styles.saveButtonText}>Simpan</Text>
+                                {isLoading ? (
+                                    <ActivityIndicator size="small" color="white" />
+                                ) : (
+                                    <Text style={styles.saveButtonText}>Simpan Perubahan</Text>
+                                )}
                             </TouchableOpacity>
                         </View>
-                    </>
-                )}
-
-                {(!isProfile &&
-                    <>
+                    ) : (
                         <View style={styles.formContainer}>
                             <Text style={styles.inputLabel}>Password Lama</Text>
                             <TextInput
                                 style={styles.input}
                                 value={userInfo.oldPassword}
-                                onChangeText={(text) => setUserInfo({ ...userInfo, oldPassword: text })}
+                                onChangeText={(text) => setUserInfo({...userInfo, oldPassword: text})}
+                                placeholder="Masukkan password lama"
                                 secureTextEntry={true}
+                                editable={!isLoading}
                             />
 
                             <Text style={styles.inputLabel}>Password Baru</Text>
                             <TextInput
                                 style={styles.input}
                                 value={userInfo.newPassword}
-                                onChangeText={(text) => setUserInfo({ ...userInfo, newPassword: text })}
+                                onChangeText={(text) => setUserInfo({...userInfo, newPassword: text})}
+                                placeholder="Masukkan password baru"
                                 secureTextEntry={true}
+                                editable={!isLoading}
                             />
 
                             <Text style={styles.inputLabel}>Konfirmasi Password</Text>
                             <TextInput
                                 style={styles.input}
                                 value={userInfo.confirmPassword}
-                                onChangeText={(text) => setUserInfo({ ...userInfo, confirmPassword: text })}
+                                onChangeText={(text) => setUserInfo({...userInfo, confirmPassword: text})}
+                                placeholder="Konfirmasi password baru"
                                 secureTextEntry={true}
+                                editable={!isLoading}
                             />
 
-                            <TouchableOpacity style={styles.saveButton} onPress={handleChangePassword}>
-                                <Text style={styles.saveButtonText}>Simpan</Text>
+                            <TouchableOpacity
+                                style={[styles.saveButton, isLoading && styles.disabledButton]}
+                                onPress={handleChangePassword}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? (
+                                    <ActivityIndicator size="small" color="white" />
+                                ) : (
+                                    <Text style={styles.saveButtonText}>Ganti Password</Text>
+                                )}
                             </TouchableOpacity>
                         </View>
-                    </>
-                )}
-            </ScrollView>
-        </SafeAreaView>
+                    )}
+                </ScrollView>
+            </SafeAreaView>
+        </AlertNotificationRoot>
     );
 }
 
@@ -347,32 +421,29 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#f5f5f5',
     },
+    scrollView: {
+        flex: 1,
+    },
+    scrollContent: {
+        paddingBottom: 30,
+    },
     header: {
         backgroundColor: '#54c42e',
-        padding: 5,
-        // paddingTop: 20,
-        flexDirection: 'row',
-        justifyContent: 'center',
+        padding: 15,
         alignItems: 'center',
-        position: 'relative',
+        justifyContent: 'center',
     },
     headerTitle: {
         color: 'white',
         fontSize: 20,
         fontWeight: 'bold',
     },
-    backButton: {
-        position: 'absolute',
-        left: 16,
-        top: 8,
-    },
-    scrollView: {
-        flex: 1,
-    },
     profileSection: {
         flexDirection: 'row',
         backgroundColor: 'white',
         padding: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: '#eee',
     },
     profileImageContainer: {
         position: 'relative',
@@ -381,48 +452,51 @@ const styles = StyleSheet.create({
     profileImage: {
         width: 105,
         height: 105,
-        borderRadius: 5,
+        borderRadius: 8,
+        backgroundColor: '#f0f0f0',
+    },
+    loadingContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     placeholderImage: {
         width: 105,
         height: 105,
-        borderRadius: 5,
-        backgroundColor: '#ddd',
+        borderRadius: 8,
+        backgroundColor: '#e0e0e0',
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    placeholderText: {
-        color: '#333',
     },
     uploadButton: {
         position: 'absolute',
         bottom: -10,
         right: -10,
-        top: 80,
         backgroundColor: '#54c42e',
         width: 40,
         height: 40,
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
+        borderWidth: 2,
+        borderColor: 'white',
     },
     userInfo: {
         flex: 1,
         justifyContent: 'center',
     },
     userName: {
-        fontSize: 24,
+        fontSize: 20,
         fontWeight: 'bold',
-        color: '#21295c',
+        color: '#333',
         marginBottom: 5,
     },
     userEmail: {
-        fontSize: 16,
+        fontSize: 14,
         color: '#666',
-        marginBottom: 2,
+        marginBottom: 3,
     },
     userPhone: {
-        fontSize: 16,
+        fontSize: 14,
         color: '#666',
         marginBottom: 15,
     },
@@ -430,7 +504,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#54c42e',
         borderRadius: 20,
         paddingVertical: 8,
-        paddingHorizontal: 16,
+        paddingHorizontal: 15,
         flexDirection: 'row',
         alignItems: 'center',
         alignSelf: 'flex-start',
@@ -440,61 +514,62 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginRight: 5,
     },
-    logoutIcon: {
-        marginLeft: 5,
+    navContainer: {
+        flexDirection: 'row',
+        backgroundColor: 'white',
+        borderBottomWidth: 1,
+        borderBottomColor: '#eee',
+    },
+    navButton: {
+        flex: 1,
+        paddingVertical: 15,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    activeNavButton: {
+        backgroundColor: '#e8f5e9',
+        borderBottomWidth: 2,
+        borderBottomColor: '#54c42e',
+    },
+    navTitle: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#333',
     },
     formContainer: {
         padding: 20,
+        backgroundColor: 'white',
     },
     inputLabel: {
-        fontSize: 16,
+        fontSize: 14,
         color: '#666',
         marginBottom: 8,
         fontWeight: '500',
     },
     input: {
-        backgroundColor: 'white',
+        backgroundColor: '#f9f9f9',
         borderWidth: 1,
         borderColor: '#ddd',
-        borderRadius: 5,
+        borderRadius: 8,
         padding: 12,
         fontSize: 16,
         marginBottom: 16,
+        color: '#333',
     },
     saveButton: {
         backgroundColor: '#54c42e',
-        borderRadius: 5,
+        borderRadius: 8,
         padding: 16,
         alignItems: 'center',
+        justifyContent: 'center',
         marginTop: 10,
+    },
+    disabledButton: {
+        opacity: 0.6,
     },
     saveButtonText: {
         color: 'white',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    navContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        // padding: 5,
-    },
-    navButton: {
-        width: '50%',
-        backgroundColor: '#fff',
-        // borderRadius: 5,
-        paddingVertical: 10,
-        borderTopWidth: 1,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ccc',
-        borderTopColor: '#ccc',
-        // paddingHorizontal: 5,
-        alignItems: 'center',
-    },
-    navTitle: {
-        color: '#54c42e',
-        fontSize: 14,
-        textAlign: 'center',
+        fontSize: 16,
         fontWeight: 'bold',
     },
 });
