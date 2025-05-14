@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "heart-app-react-native",
+    "name": "Heart App",
     "slug": "heart-app-react-native",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "heartapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -16,7 +16,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.nuryamancode.heartappreactnative"
+      "package": "com.mahardika.heartapp"
     },
     "web": {
       "bundler": "metro",
